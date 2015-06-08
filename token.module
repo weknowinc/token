@@ -562,7 +562,7 @@ function token_get_invalid_tokens($type, $tokens) {
  * );
  * @endcode
  */
-function token_element_validate(&$element, FormStateInterface $form_state) {
+function token_element_validate($element, FormStateInterface $form_state) {
   $value = isset($element['#value']) ? $element['#value'] : $element['#default_value'];
 
   if (!Unicode::strlen($value)) {
