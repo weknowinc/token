@@ -5,7 +5,7 @@
 
   Drupal.behaviors.tokenTree = {
     attach: function (context, settings) {
-      $('table.token-tree', context).once('token-tree', function () {
+      $('table.token-tree', context).once('token-tree').each(function () {
         $(this).treeTable();
       });
     }
@@ -18,7 +18,7 @@
         drupalSettings.tokenFocusedField = this;
       });
 
-      $('.token-click-insert .token-key', context).once('token-click-insert', function () {
+      $('.token-click-insert .token-key', context).once('token-click-insert').each(function () {
         var newThis = $('<a href="javascript:void(0);" title="' + Drupal.t('Insert this token into your form') + '">' + $(this).html() + '</a>').click(function () {
           if (typeof drupalSettings.tokenFocusedField == 'undefined') {
             alert(Drupal.t('First click a text field to insert your tokens into.'));
