@@ -1241,7 +1241,6 @@ function _token_field_label($entity_type, $field_name) {
  */
 function field_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
-  $sanitize = !empty($options['sanitize']);
   $langcode = isset($options['langcode']) ? $options['langcode'] : NULL;
 
   // Entity tokens.
