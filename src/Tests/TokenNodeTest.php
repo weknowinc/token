@@ -48,7 +48,12 @@ class TokenNodeTest extends TokenKernelTestBase {
   }
 
   function testNodeTokens() {
-    $page = Node::create(['type' => 'page', 'revision_log' => $this->randomMachineName(), 'path' => array('alias' => '/content/source-node')]);
+    $page = Node::create([
+      'type' => 'page',
+      'title' => $this->randomMachineName(),
+      'revision_log' => $this->randomMachineName(),
+      'path' => array('alias' => '/content/source-node')
+    ]);
     $page->save();
     $tokens = array(
       'log' => $page->revision_log->value,
@@ -69,7 +74,10 @@ class TokenNodeTest extends TokenKernelTestBase {
     );
     $this->assertTokens('node', array('node' => $page), $tokens);
 
-    $article = Node::create(['type' => 'article']);
+    $article = Node::create([
+      'type' => 'article',
+      'title' => $this->randomMachineName()
+    ]);
     $article->save();
     $tokens = array(
       'log' => '',

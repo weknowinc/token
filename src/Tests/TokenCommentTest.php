@@ -47,7 +47,10 @@ class TokenCommentTest extends TokenKernelTestBase {
   }
 
   function testCommentTokens() {
-    $node = Node::create(['type' => 'page']);
+    $node = Node::create([
+      'type' => 'page',
+      'title' => $this->randomMachineName()
+    ]);
     $node->save();
 
     $parent_comment = Comment::create([
