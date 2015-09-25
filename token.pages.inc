@@ -6,6 +6,7 @@
  */
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\DiffArray;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 
@@ -43,7 +44,7 @@ function theme_token_tree_link($variables) {
 
   // Set the token tree to open in a separate window.
   $variables['options']['attributes'] += array(
-    'data-accepts' => 'application/vnd.drupal-dialog',
+    'data-dialog-type' => 'dialog',
     'data-dialog-options' => json_encode(array(
       'width' => 600,
       'height' => 400,
@@ -54,7 +55,8 @@ function theme_token_tree_link($variables) {
    );
   $variables['options']['attributes']['class'][] = 'use-ajax';
 
-  return Drupal::l($variables['text'], Url::fromRoute('token.tree', array(), $variables['options']));
+  $link = Link::createFromRoute($variables['text'], 'token.tree', [], $variables['options'])->toRenderable();
+  return \Drupal::service('renderer')->render($link);
 }
 
 /**
