@@ -142,8 +142,7 @@ function token_form_alter(&$form, $form_state, $form_id) {
  * Implements hook_block_view_alter().
  */
 function token_block_view_alter(&$build, BlockPluginInterface $block) {
-  $config = $block->getConfiguration();
-  $label = $config['label'];
+  $label = $build['#configuration']['label'];
   if ($label != '<none>') {
     // The label is automatically escaped, avoid escaping it twice.
     // @todo https://www.drupal.org/node/2580723 will add a method or option
