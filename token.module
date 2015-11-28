@@ -223,23 +223,16 @@ function token_field_display_alter(&$display, $context) {
 }
 
 /**
- * Implements hook_field_create_instance().
+ * Implements hook_field_storage_config_presave().
  */
-function token_field_create_instance($instance) {
+function token_field_config_presave($instance) {
   token_clear_cache();
 }
 
 /**
- * Implements hook_field_update_instance().
+ * Implements hook_field_storage_config_delete().
  */
-function token_field_update_instance($instance) {
-  token_clear_cache();
-}
-
-/**
- * Implements hook_field_delete_instance().
- */
-function token_field_delete_instance($instance) {
+function token_field_config_delete($instance) {
   token_clear_cache();
 }
 
