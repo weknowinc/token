@@ -609,28 +609,29 @@ function token_element_validate_token_context(&$element, FormStateInterface $for
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function token_form_field_ui_field_instance_edit_form_alter(&$form, $form_state) {
-  if (!isset($form['instance']) || $form['#field']->isLocked()) {
+function token_form_field_config_edit_form_alter(&$form, FormStateInterface $form_state) {
+  $field_config = $form_state->getFormObject()->getEntity();
+  $field_storage = $field_config->getFieldStorageDefinition();
+  if ($field_storage->isLocked()) {
     return;
   }
-  $field_type = $form['#field']->getType();
-  if (($field_type == 'file' || $field_type == 'image') && isset($form['instance']['settings']['file_directory'])) {
+  $field_type = $field_storage->getType();
+  if (($field_type == 'file' || $field_type == 'image') && isset($form['settings']['file_directory'])) {
     // GAH! We can only support global tokens in the upload file directory path.
-    $form['instance']['settings']['file_directory']['#element_validate'][] = 'token_element_validate';
-    $form['instance']['settings']['file_directory'] += array('#token_types' => array());
-    $form['instance']['settings']['file_directory']['#description'] .= ' ' . t('This field supports tokens.');
+    $form['settings']['file_directory']['#element_validate'][] = 'token_element_validate';
+    $form['settings']['file_directory'] += array('#token_types' => array());
+    $form['settings']['file_directory']['#description'] .= ' ' . t('This field supports tokens.');
   }
 
   // Note that the description is tokenized via token_field_widget_form_alter().
-  $form['instance']['description']['#description'] .= '<br />' . t('This field supports tokens.');
-  $form['instance']['description']['#element_validate'][] = 'token_element_validate';
-  $form['instance']['description'] += array('#token_types' => array());
+  $form['description']['#element_validate'][] = 'token_element_validate';
+  $form['description'] += array('#token_types' => array());
 
-  $form['instance']['settings']['token_tree'] = array(
+  $form['token_tree'] = array(
     '#theme' => 'token_tree',
     '#token_types' => array(),
     '#dialog' => TRUE,
-    '#weight' => $form['instance']['description']['#weight'] + 0.5,
+    '#weight' => $form['description']['#weight'] + 0.5,
   );
 }
 
