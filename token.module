@@ -90,7 +90,6 @@ function token_theme() {
       'click_insert' => TRUE,
       'show_restricted' => FALSE,
       'recursion_limit' => 3,
-      'dialog' => FALSE,
     ),
     'function' => 'theme_token_tree',
     'file' => 'token.pages.inc',
@@ -621,7 +620,7 @@ function token_form_field_config_edit_form_alter(&$form, FormStateInterface $for
   $form['description'] += array('#token_types' => array());
 
   $form['token_tree'] = array(
-    '#theme' => 'token_tree',
+    '#theme' => 'token_tree_link',
     '#token_types' => array(),
     '#dialog' => TRUE,
     '#weight' => $form['description']['#weight'] + 0.5,
@@ -642,7 +641,7 @@ function token_form_system_actions_configure_alter(&$form, $form_state) {
     case 'system_send_email_action':
     case 'system_goto_action':
       $form['token_tree'] = array(
-        '#theme' => 'token_tree',
+        '#theme' => 'token_tree_link',
         '#token_types' => 'all',
         '#dialog' => TRUE,
         '#weight' => 100,
@@ -707,7 +706,7 @@ function token_form_user_admin_settings_alter(&$form, FormStateInterface $form_s
 
   // Add the token tree UI.
   $form['email']['token_tree'] = array(
-    '#theme' => 'token_tree',
+    '#theme' => 'token_tree_link',
     '#token_types' => array('user'),
     '#show_restricted' => TRUE,
     '#dialog' => TRUE,

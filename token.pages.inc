@@ -33,10 +33,6 @@ function theme_token_tree_link($variables) {
   }
   $variables['options']['query']['options'] += $tree_variables;
 
-  // We should never pass the dialog option to theme_token_tree(). It is only
-  // used for this function.
-  unset($variables['options']['query']['options']['dialog']);
-
   // Because PHP converts query strings with arrays into a different syntax on
   // the next request, the options have to be encoded with JSON in the query
   // string so that we can reliably decode it for token comparison.
@@ -92,10 +88,6 @@ function theme_tree_table($variables) {
  * @ingroup themeable
  */
 function theme_token_tree($variables) {
-  if (!empty($variables['dialog'])) {
-    return \Drupal::theme()->render('token_tree_link', $variables);
-  }
-
   $token_types = $variables['token_types'];
   $info = token_get_info();
 
