@@ -352,51 +352,18 @@ function token_module_implements_alter(&$implementations, $hook) {
  *
  * @see hook_token_info()
  * @see hook_token_info_alter()
+ *
+ * @deprecated
  */
 function token_get_info($token_type = NULL, $token = NULL) {
-  // Use the advanced drupal_static() pattern, since this is called very often.
-  static $drupal_static_fast;
-  if (!isset($drupal_static_fast)) {
-    $drupal_static_fast['token_info'] = &drupal_static(__FUNCTION__);
-  }
-  $token_info = &$drupal_static_fast['token_info'];
-
-  if (empty($token_info)) {
-    $token_info = \Drupal::token()->getInfo();
-
-    // @todo: Move this into the token service and deprecate this function.
-    foreach (array_keys($token_info['types']) as $type_key) {
-      if (isset($token_info['types'][$type_key]['type'])) {
-        $base_type = $token_info['types'][$type_key]['type'];
-        // If this token type extends another token type, then merge in
-        // the base token type's tokens.
-        if (isset($token_info['tokens'][$base_type])) {
-          $token_info['tokens'] += array($type_key => array());
-          $token_info['tokens'][$type_key] += $token_info['tokens'][$base_type];
-        }
-      }
-      else {
-        // Add a 'type' value to each token type so we can properly use
-        // token_type_load().
-        $token_info['types'][$type_key]['type'] = $type_key;
-      }
-    }
-
-    // Pre-sort tokens.
-    uasort($token_info['types'], 'token_asort_tokens');
-    foreach (array_keys($token_info['tokens']) as $type) {
-      uasort($token_info['tokens'][$type], 'token_asort_tokens');
-    }
-  }
-
   if (isset($token_type) && isset($token)) {
-    return isset($token_info['tokens'][$token_type][$token]) ? $token_info['tokens'][$token_type][$token] : NULL;
+    return \Drupal::token()->getTokenInfo($token_type, $token);
   }
   elseif (isset($token_type)) {
-    return isset($token_info['types'][$token_type]) ? $token_info['types'][$token_type] : NULL;
+    return \Drupal::token()->getTypeInfo($token_type);
   }
   else {
-    return $token_info;
+    return \Drupal::token()->getInfo();
   }
 }
 
@@ -418,33 +385,15 @@ function _token_module($type, $name) {
 }
 
 /**
- * uasort() callback to sort tokens by the 'name' property.
- */
-function token_asort_tokens($token_a, $token_b) {
-  return strnatcmp($token_a['name'], $token_b['name']);
-}
-
-/**
  * Get a list of token types that can be used without any context (global).
  *
  * @return
  *   An array of global token types.
+ *
+ * @deprecated
  */
 function token_get_global_token_types() {
-  $global_types = &drupal_static(__FUNCTION__, array());
-
-  if (empty($global_types)) {
-    $token_info = token_get_info();
-    foreach ($token_info['types'] as $type => $type_info) {
-      // If the token types has not specified that 'needs-data' => TRUE, then
-      // it is a global token type that will always be replaced in any context.
-      if (empty($type_info['needs-data'])) {
-        $global_types[] = $type;
-      }
-    }
-  }
-
-  return $global_types;
+  return \Drupal::token()->getGlobalTokenTypes();
 }
 
 /**
@@ -458,33 +407,11 @@ function token_get_global_token_types() {
  *   performed.
  * @return
  *   An array with the invalid tokens in their original raw forms.
+ *
+ * @deprecated
  */
 function token_get_invalid_tokens_by_context($value, $valid_types = array()) {
-  if (in_array('all', $valid_types)) {
-    $info = token_get_info();
-    $valid_types = array_keys($info['types']);
-  }
-  else {
-    // Add the token types that are always valid in global context.
-    $valid_types = array_merge($valid_types, token_get_global_token_types());
-  }
-
-  $invalid_tokens = array();
-  $value_tokens = is_string($value) ? \Drupal::token()->scan($value) : $value;
-
-  foreach ($value_tokens as $type => $tokens) {
-    if (!in_array($type, $valid_types)) {
-      // If the token type is not a valid context, its tokens are invalid.
-      $invalid_tokens = array_merge($invalid_tokens, array_values($tokens));
-    }
-    else {
-      // Check each individual token for validity.
-      $invalid_tokens = array_merge($invalid_tokens, token_get_invalid_tokens($type, $tokens));
-    }
-  }
-
-  array_unique($invalid_tokens);
-  return $invalid_tokens;
+  return \Drupal::token()->getInvalidTokensByContext($value, $valid_types);
 }
 
 /**
@@ -496,42 +423,11 @@ function token_get_invalid_tokens_by_context($value, $valid_types = array()) {
  *   A keyed array of tokens, and their original raw form in the source text.
  * @return
  *   An array with the invalid tokens in their original raw forms.
+ *
+ * @deprecated
  */
 function token_get_invalid_tokens($type, $tokens) {
-  $token_info = token_get_info();
-  $invalid_tokens = array();
-
-  foreach ($tokens as $token => $full_token) {
-    if (isset($token_info['tokens'][$type][$token])) {
-      continue;
-    }
-
-    // Split token up if it has chains.
-    $parts = explode(':', $token, 2);
-
-    if (!isset($token_info['tokens'][$type][$parts[0]])) {
-      // This is an invalid token (not defined).
-      $invalid_tokens[] = $full_token;
-    }
-    elseif (count($parts) == 2) {
-      $sub_token_info = $token_info['tokens'][$type][$parts[0]];
-      if (!empty($sub_token_info['dynamic'])) {
-        // If this token has been flagged as a dynamic token, skip it.
-        continue;
-      }
-      elseif (empty($sub_token_info['type'])) {
-        // If the token has chains, but does not support it, it is invalid.
-        $invalid_tokens[] = $full_token;
-      }
-      else {
-        // Resursively check the chained tokens.
-        $sub_tokens = \Drupal::token()->findWithPrefix(array($token => $full_token), $parts[0]);
-        $invalid_tokens = array_merge($invalid_tokens, token_get_invalid_tokens($sub_token_info['type'], $sub_tokens));
-      }
-    }
-  }
-
-  return $invalid_tokens;
+  return \Drupal::token()->getInvalidTokens($type, $tokens);
 }
 
 /**
