@@ -1,1 +1,4 @@
 services:
+  token.tree_builder:
+    class: Drupal\token\TreeBuilder
+    arguments: ['@token', '@cache.data', '@language_manager']
