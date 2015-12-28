@@ -98,7 +98,6 @@ function token_theme() {
     'variables' => array(
       'text' => NULL,
       'options' => array(),
-      'dialog' => TRUE,
     ) + $info['token_tree']['variables'],
     'function' => 'theme_token_tree_link',
     'file' => 'token.pages.inc',
@@ -518,7 +517,6 @@ function token_form_field_config_edit_form_alter(&$form, FormStateInterface $for
   $form['token_tree'] = array(
     '#theme' => 'token_tree_link',
     '#token_types' => array(),
-    '#dialog' => TRUE,
     '#weight' => $form['description']['#weight'] + 0.5,
   );
 }
@@ -539,7 +537,6 @@ function token_form_system_actions_configure_alter(&$form, $form_state) {
       $form['token_tree'] = array(
         '#theme' => 'token_tree_link',
         '#token_types' => 'all',
-        '#dialog' => TRUE,
         '#weight' => 100,
       );
       // @todo Add token validation to the action fields that can use tokens.
@@ -605,7 +602,6 @@ function token_form_user_admin_settings_alter(&$form, FormStateInterface $form_s
     '#theme' => 'token_tree_link',
     '#token_types' => array('user'),
     '#show_restricted' => TRUE,
-    '#dialog' => TRUE,
     '#weight' => 90,
   );
 }

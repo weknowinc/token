@@ -11,19 +11,17 @@ use Drupal\Core\Url;
 use Drupal\Core\Utility\Token;
 
 /**
- * Theme a link to a token tree either as a regular link or a dialog.
+ * Theme a link to a token tree shown as a dialog.
  */
 function theme_token_tree_link($variables) {
   if (empty($variables['text'])) {
     $variables['text'] = t('Browse available tokens.');
   }
 
-  if (!empty($variables['dialog'])) {
-    $attached['#attached']['library'][] = 'core/drupal.dialog.ajax';
-    $attached['#attached']['library'][] = 'token/token';
-    drupal_render($attached);
-    $variables['options']['attributes']['class'][] = 'token-dialog';
-  }
+  $attached['#attached']['library'][] = 'core/drupal.dialog.ajax';
+  $attached['#attached']['library'][] = 'token/token';
+  drupal_render($attached);
+  $variables['options']['attributes']['class'][] = 'token-dialog';
 
   $info = token_theme();
   $tree_variables = array_intersect_key($variables, $info['token_tree']['variables']);

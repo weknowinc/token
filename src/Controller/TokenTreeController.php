@@ -24,10 +24,6 @@ class TokenTreeController extends ControllerBase {
 
     $options = $request->query->has('options') ? Json::decode($request->query->get('options')) : array();
 
-    // Force the dialog option to be false so we're not creating a dialog within
-    // a dialog.
-    $options['dialog'] = FALSE;
-
     // Build a render array with the options.
     foreach ($options as $key => $value) {
       $build['tree']['#' . $key] = $value;
