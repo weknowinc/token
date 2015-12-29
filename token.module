@@ -51,24 +51,6 @@ function _token_core_supported_modules() {
 }
 
 /**
- * Implements hook_admin_menu_output_alter().
- */
-function token_admin_menu_output_alter(&$content) {
-  $content['icon']['icon']['flush-cache']['token'] = array(
-    '#title' => t('Token registry'),
-    '#href' => 'token/flush-cache',
-    '#options' => array(
-      'query' => drupal_get_destination() + array('token' => \Drupal::csrfToken()->get('token/flush-cache')),
-    ),
-  );
-}
-
-function token_type_load($token_type) {
-  $info = token_get_info();
-  return isset($info['types'][$token_type]) ? $info['types'][$token_type] : FALSE;
-}
-
-/**
  * Implements hook_theme().
  */
 function token_theme() {
@@ -479,13 +461,6 @@ function token_element_validate($element, FormStateInterface $form_state) {
   }
 
   return $element;
-}
-
-/**
- * Deprecated. Use token_element_validate() instead.
- */
-function token_element_validate_token_context(&$element, FormStateInterface $form_state) {
-  return token_element_validate($element, $form_state);
 }
 
 /**

@@ -47,8 +47,7 @@ class Token extends TokenBase implements TokenInterface {
           }
         }
         else {
-          // Add a 'type' value to each token type so we can properly use
-          // token_type_load().
+          // Add a 'type' value to each token type information.
           $token_info['types'][$type_key]['type'] = $type_key;
         }
       }
