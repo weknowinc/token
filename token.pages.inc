@@ -13,15 +13,15 @@ use Drupal\Core\Utility\Token;
 /**
  * Theme a link to a token tree shown as a dialog.
  */
-function theme_token_tree_link($variables) {
+function template_preprocess_token_tree_link(&$variables) {
   if (empty($variables['text'])) {
     $variables['text'] = t('Browse available tokens.');
   }
 
-  $attached['#attached']['library'][] = 'core/drupal.dialog.ajax';
-  $attached['#attached']['library'][] = 'token/token';
-  drupal_render($attached);
+  $variables['#attached']['library'][] = 'core/drupal.dialog.ajax';
+  $variables['#attached']['library'][] = 'token/token';
   $variables['options']['attributes']['class'][] = 'token-dialog';
+  $variables['options']['attributes']['class'][] = 'use-ajax';
 
   $info = token_theme();
   $tree_variables = array_intersect_key($variables, $info['token_tree']['variables']);
@@ -37,20 +37,20 @@ function theme_token_tree_link($variables) {
   $variables['options']['query']['options'] = Json::encode($variables['options']['query']['options']);
 
   // Set the token tree to open in a separate window.
-  $variables['options']['attributes'] += array(
+  $variables['options']['attributes'] += [
     'data-dialog-type' => 'dialog',
-    'data-dialog-options' => json_encode(array(
+    'data-dialog-options' => json_encode([
       'width' => 600,
       'height' => 400,
-      'position' => array('my' => 'right bottom', 'at' => 'right bottom'),
+      'position' => ['my' => 'right bottom', 'at' => 'right bottom'],
       'draggable' => TRUE,
       'autoResize' => FALSE,
-    )),
-   );
-  $variables['options']['attributes']['class'][] = 'use-ajax';
+    ]),
+   ];
 
-  $link = Link::createFromRoute($variables['text'], 'token.tree', [], $variables['options'])->toRenderable();
-  return \Drupal::service('renderer')->render($link);
+  $variables['link'] = Link::createFromRoute($variables['text'], 'token.tree', [], $variables['options'])->toRenderable();
+  $variables['url'] = new Url('token.tree', [], $variables['options']);
+  $variables['attributes'] = $variables['options']['attributes'];
 }
 
 /**

@@ -94,14 +94,18 @@ function token_theme() {
     'function' => 'theme_token_tree',
     'file' => 'token.pages.inc',
   );
-  $info['token_tree_link'] = array(
-    'variables' => array(
+  $info['token_tree_link'] = [
+    'variables' => [
+      'token_types' => [],
+      'global_types' => TRUE,
+      'click_insert' => TRUE,
+      'show_restricted' => FALSE,
+      'recursion_limit' => 3,
       'text' => NULL,
-      'options' => array(),
-    ) + $info['token_tree']['variables'],
-    'function' => 'theme_token_tree_link',
+      'options' => [],
+    ] + $info['token_tree']['variables'],
     'file' => 'token.pages.inc',
-  );
+  ];
 
   return $info;
 }
