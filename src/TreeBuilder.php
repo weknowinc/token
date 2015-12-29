@@ -19,6 +19,11 @@ class TreeBuilder implements TreeBuilderInterface {
   protected $tokenService;
 
   /**
+   * @var \Drupal\token\TokenEntityMapperInterface
+   */
+  protected $entityMapper;
+
+  /**
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
@@ -35,8 +40,9 @@ class TreeBuilder implements TreeBuilderInterface {
    */
   protected $builtTrees;
 
-  public function __construct(TokenInterface $token_service, CacheBackendInterface $cache_backend, LanguageManagerInterface $language_manager) {
+  public function __construct(TokenInterface $token_service, TokenEntityMapperInterface $entity_mapper, CacheBackendInterface $cache_backend, LanguageManagerInterface $language_manager) {
     $this->tokenService = $token_service;
+    $this->entityMapper = $entity_mapper;
     $this->cacheBackend = $cache_backend;
     $this->languageManager = $language_manager;
   }
@@ -57,7 +63,7 @@ class TreeBuilder implements TreeBuilderInterface {
     $options['depth'] = min($options['depth'], TOKEN_MAX_DEPTH);
 
     // If $token_type is an entity, make sure we are using the actual token type.
-    if ($entity_token_type = token_get_entity_mapping('entity', $token_type)) {
+    if ($entity_token_type = $this->entityMapper->getTokenTypeForEntityType($token_type)) {
       $token_type = $entity_token_type;
     }
 

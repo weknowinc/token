@@ -231,6 +231,7 @@ function token_field_config_delete($instance) {
  */
 function token_clear_cache() {
   \Drupal::token()->resetInfo();
+  \Drupal::service('token.entity_mapper')->resetInfo();
   drupal_static_reset('token_get_info');
   drupal_static_reset('token_get_global_token_types');
   drupal_static_reset('token_get_entity_mapping');
@@ -251,27 +252,24 @@ function token_clear_cache() {
  *
  * @see token_entity_info_alter()
  * @see http://drupal.org/node/737726
+ *
+ * @deprecated
  */
 function token_get_entity_mapping($value_type = 'token', $value = NULL, $fallback = FALSE) {
-  $mapping = &drupal_static(__FUNCTION__, array());
+  /** @var \Drupal\token\TokenEntityMapperInterface $mapper */
+  $mapper = \Drupal::service('token.entity_mapper');
 
-  if (empty($mapping)) {
-    foreach (\Drupal::entityManager()->getDefinitions() as $entity_type => $info) {
-      $mapping[$entity_type] = $info->get('token type') ? $info->get('token type') : $entity_type;
-    }
-    // Allow modules to alter the mapping array.
-    \Drupal::moduleHandler()->alter('token_entity_mapping', $mapping);
+  if (empty($value)) {
+    $mappings = $mapper->getEntityTypeMappings();
+    return $value_type == 'token' ? array_flip($mappings) : $mappings;
   }
 
-  if (!isset($value)) {
-    return $value_type == 'token' ? array_flip($mapping) : $mapping;
-  }
-  elseif ($value_type == 'token') {
-    $return = array_search($value, $mapping);
-    return $return !== FALSE ? $return : ($fallback ? $value : FALSE);
-  }
-  elseif ($value_type == 'entity') {
-    return isset($mapping[$value]) ? $mapping[$value] : ($fallback ? $value : FALSE);
+  switch ($value_type) {
+    case 'token':
+      return $mapper->getEntityTypeForTokenType($value, $fallback);
+
+    case 'entity':
+      return $mapper->getTokenTypeForEntityType($value, $fallback);
   }
 }
 
