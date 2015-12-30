@@ -45,7 +45,7 @@ class TokenEntityMapper implements TokenEntityMapperInterface {
   public function getEntityTypeMappings() {
     if (empty($this->entityMappings)) {
       foreach ($this->entityTypeManager->getDefinitions() as $entity_type => $info) {
-        $this->entityMappings[$entity_type] = $info->get('token type') ?: $entity_type;
+        $this->entityMappings[$entity_type] = $info->get('token_type') ?: $entity_type;
       }
       // Allow modules to alter the mapping array.
       $this->moduleHandler->alter('token_entity_mapping', $this->entityMappings);

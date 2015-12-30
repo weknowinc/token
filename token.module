@@ -265,18 +265,18 @@ function token_entity_type_alter(array &$entity_types) {
   $devel_exists = \Drupal::moduleHandler()->moduleExists('devel');
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
   foreach ($entity_types as $entity_type_id => $entity_type) {
-    if (!$entity_type->get('token type')) {
+    if (!$entity_type->get('token_type')) {
       // Fill in default token types for entities.
       switch ($entity_type_id) {
         case 'taxonomy_term':
         case 'taxonomy_vocabulary':
           // Stupid taxonomy token types...
-          $entity_type->set('token type', str_replace('taxonomy_', '', $entity_type_id));
+          $entity_type->set('token_type', str_replace('taxonomy_', '', $entity_type_id));
           break;
 
         default:
           // By default the token type is the same as the entity type.
-          $entity_type->set('token type', $entity_type_id);
+          $entity_type->set('token_type', $entity_type_id);
           break;
       }
     }

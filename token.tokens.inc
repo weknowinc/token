@@ -63,11 +63,11 @@ function token_token_info_alter(&$info) {
   $entities = \Drupal::entityManager()->getDefinitions();
   foreach ($entities as $entity => $entity_info) {
     /* @var \Drupal\Core\Entity\EntityType $entity_info */
-    if (!$entity_info->get('token type')) {
+    if (!$entity_info->get('token_type')) {
       continue;
     }
 
-    $token_type = $entity_info->get('token type');
+    $token_type = $entity_info->get('token_type');
     if (!isset($info['types'][$token_type]) || !isset($info['tokens'][$token_type])) {
       continue;
     }
