@@ -476,7 +476,7 @@ function token_form_field_config_edit_form_alter(&$form, FormStateInterface $for
   if (($field_type == 'file' || $field_type == 'image') && isset($form['settings']['file_directory'])) {
     // GAH! We can only support global tokens in the upload file directory path.
     $form['settings']['file_directory']['#element_validate'][] = 'token_element_validate';
-    $form['settings']['file_directory'] += array('#token_types' => array());
+    $form['settings']['file_directory'] += array('#token_types' => array('date'));
     $form['settings']['file_directory']['#description'] .= ' ' . t('This field supports tokens.');
   }
 
