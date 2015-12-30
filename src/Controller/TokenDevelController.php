@@ -7,31 +7,31 @@
 
 namespace Drupal\token\Controller;
 
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\token\TokenEntityMapperInterface;
+use Drupal\token\TreeBuilderInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Devel integration for tokens.
  */
-class TokenDevelController implements ContainerInjectionInterface {
+class TokenDevelController extends ControllerBase {
 
   /**
-   * The module handler to invoke the alter hook.
-   *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   * @var \Drupal\token\TreeBuilderInterface
    */
-  protected $moduleHandler;
+  protected $treeBuilder;
 
   /**
-   * Constructs a new TokenDevelController.
-   *
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *   The module handler.
+   * @var \Drupal\token\TokenEntityMapperInterface
    */
-  public function __construct(ModuleHandlerInterface $module_handler) {
-    $this->moduleHandler = $module_handler;
+  protected $entityMapper;
+
+  public function __construct(TreeBuilderInterface $tree_builder, TokenEntityMapperInterface $entity_mapper) {
+    $this->treeBuilder = $tree_builder;
+    $this->entityMapper = $entity_mapper;
   }
 
   /**
@@ -39,42 +39,62 @@ class TokenDevelController implements ContainerInjectionInterface {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('module_handler')
+      $container->get('token.tree_builder'),
+      $container->get('token.entity_mapper')
     );
   }
 
-  public function devel_token_node($node, Request $request) {
-    return $this->devel_token_object('node', $node, $request);
+  /**
+   * Prints the loaded structure of the current entity.
+   *
+   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   *    A RouteMatch object.
+   *
+   * @return array
+   *    Array of page elements to render.
+   */
+  public function entityTokens(RouteMatchInterface $route_match) {
+    $output = [];
+
+    $parameter_name = $route_match->getRouteObject()->getOption('_token_entity_type_id');
+    $entity = $route_match->getParameter($parameter_name);
+
+    if ($entity && $entity instanceof EntityInterface) {
+      $output = $this->renderTokenTree($entity);
+    }
+
+    return $output;
   }
 
-  public function devel_token_comment($comment, Request $request) {
-    return $this->devel_token_object('comment', $comment, $request);
-  }
+  /**
+   * Render the token tree for the specified entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity for which the token tree should be rendered.
+   *
+   * @return array
+   *   Render array of the token tree for the $entity.
+   *
+   * @see static::entityLoad
+   */
+  protected function renderTokenTree(EntityInterface $entity) {
+    $this->moduleHandler()->loadInclude('token', 'pages.inc');
+    $entity_type = $entity->getEntityTypeId();
 
-  public function devel_token_user($user, Request $request) {
-    return $this->devel_token_object('user', $user, $request);
-  }
+    $header = [
+      $this->t('Token'),
+      $this->t('Value'),
+    ];
+    $rows = [];
 
-  public function devel_token_taxonomy_term($taxonomy_term, Request $request) {
-    return $this->devel_token_object('taxonomy_term', $taxonomy_term, $request);
-  }
-
-  private function devel_token_object($entity_type, $entity_id, Request $request) {
-    $this->moduleHandler->loadInclude('token', 'pages.inc');
-    $entity = entity_load($entity_type, $entity_id);
-
-    $header = array(
-      t('Token'),
-      t('Value'),
-    );
-    $rows = array();
-
-    $options = array(
+    $token_type = $this->entityMapper->getTokenTypeForEntityType($entity_type);
+    $options = [
       'flat' => TRUE,
       'values' => TRUE,
-      'data' => array($entity_type => $entity),
-    );
-    $tree = token_build_tree($entity_type, $options);
+      'data' => [$token_type => $entity],
+    ];
+
+    $tree = $this->treeBuilder->buildTree($token_type, $options);
     foreach ($tree as $token => $token_info) {
       if (!empty($token_info['restricted'])) {
         continue;
@@ -88,16 +108,16 @@ class TokenDevelController implements ContainerInjectionInterface {
       $rows[] = $row;
     }
 
-    $build['tokens'] = array(
+    $build['tokens'] = [
       '#theme' => 'tree_table',
       '#header' => $header,
       '#rows' => $rows,
-      '#attributes' => array('class' => array('token-tree')),
-      '#empty' => t('No tokens available.'),
-      '#attached' => array(
-        'library' => array('token/token'),
-      ),
-    );
+      '#attributes' => ['class' => ['token-tree']],
+      '#empty' => $this->t('No tokens available.'),
+      '#attached' => [
+        'library' => ['token/token'],
+      ],
+    ];
 
     return $build;
   }

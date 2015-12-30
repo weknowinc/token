@@ -10,6 +10,7 @@ namespace Drupal\token;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Render\BubbleableMetadata;
 
 class TreeBuilder implements TreeBuilderInterface {
 
@@ -102,7 +103,7 @@ class TreeBuilder implements TreeBuilderInterface {
         }
       }
       if (!empty($token_values)) {
-        $token_values = $this->tokenService->generate($token_type, $token_values, $options['data']);
+        $token_values = $this->tokenService->generate($token_type, $token_values, $options['data'], [], new BubbleableMetadata());
         foreach ($token_values as $token => $replacement) {
           $tree[$token]['value'] = $replacement;
         }
