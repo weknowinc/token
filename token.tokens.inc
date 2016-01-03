@@ -933,7 +933,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
   // present in $data, then throw an error.
   if (!empty($GLOBALS['drupal_test_info']['test_run_id'])) {
     // Only check when tests are running.
-    $type_info = token_get_info($type);
+    $type_info = \Drupal::token()->getTypeInfo($type);
     if (!empty($type_info['needs-data']) && !isset($data[$type_info['needs-data']])) {
       trigger_error(t('Attempting to perform token replacement for token type %type without required data', array('%type' => $type)), E_USER_WARNING);
     }

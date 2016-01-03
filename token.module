@@ -299,37 +299,6 @@ function token_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
- * Retrieve, sort, store token info from the cache.
- *
- * @param $token_type
- *   The optional token type that if specified will return
- *   $info['types'][$token_type].
- * @param $token
- *   The optional token name if specified will return
- *   $info['tokens'][$token_type][$token].
- *
- * @return
- *   An array of all token information from hook_token_info(), or the array
- *   of a token type or specific token.
- *
- * @see hook_token_info()
- * @see hook_token_info_alter()
- *
- * @deprecated
- */
-function token_get_info($token_type = NULL, $token = NULL) {
-  if (isset($token_type) && isset($token)) {
-    return \Drupal::token()->getTokenInfo($token_type, $token);
-  }
-  elseif (isset($token_type)) {
-    return \Drupal::token()->getTypeInfo($token_type);
-  }
-  else {
-    return \Drupal::token()->getInfo();
-  }
-}
-
-/**
  * Return the module responsible for a token.
  *
  * @param string $type
@@ -338,58 +307,12 @@ function token_get_info($token_type = NULL, $token = NULL) {
  *   The token name.
  *
  * @return mixed
- *   The value of $info['tokens'][$type][$name]['module'] from token_get_info(),
- *   or NULL if the value does not exist.
+ *   The value of $info['tokens'][$type][$name]['module'] from token info, or
+ *   NULL if the value does not exist.
  */
 function _token_module($type, $name) {
-  $token_info = token_get_info($type, $name);
+  $token_info = \Drupal::token()->getTokenInfo($type, $name);
   return isset($token_info['module']) ? $token_info['module'] : NULL;
-}
-
-/**
- * Get a list of token types that can be used without any context (global).
- *
- * @return
- *   An array of global token types.
- *
- * @deprecated
- */
-function token_get_global_token_types() {
-  return \Drupal::token()->getGlobalTokenTypes();
-}
-
-/**
- * Validate an tokens in raw text based on possible contexts.
- *
- * @param $value
- *   A string with the raw text containing the raw tokens, or an array of
- *   tokens from token_scan().
- * @param $tokens
- *   An array of token types that will be used when token replacement is
- *   performed.
- * @return
- *   An array with the invalid tokens in their original raw forms.
- *
- * @deprecated
- */
-function token_get_invalid_tokens_by_context($value, $valid_types = array()) {
-  return \Drupal::token()->getInvalidTokensByContext($value, $valid_types);
-}
-
-/**
- * Validate an array of tokens based on their token type.
- *
- * @param $type
- *   The type of tokens to validate (e.g. 'node', etc.)
- * @param $tokens
- *   A keyed array of tokens, and their original raw form in the source text.
- * @return
- *   An array with the invalid tokens in their original raw forms.
- *
- * @deprecated
- */
-function token_get_invalid_tokens($type, $tokens) {
-  return \Drupal::token()->getInvalidTokens($type, $tokens);
 }
 
 /**
@@ -440,7 +363,7 @@ function token_element_validate($element, FormStateInterface $form_state) {
 
   // Check if the field defines specific token types.
   if (isset($element['#token_types'])) {
-    $invalid_tokens = token_get_invalid_tokens_by_context($tokens, $element['#token_types']);
+    $invalid_tokens = \Drupal::token()->getInvalidTokensByContext($tokens, $element['#token_types']);
     if ($invalid_tokens) {
       $form_state->setError($element, t('The %element-title is using the following invalid tokens: @invalid-tokens.', array('%element-title' => $title, '@invalid-tokens' => implode(', ', $invalid_tokens))));
     }

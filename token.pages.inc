@@ -86,14 +86,16 @@ function theme_tree_table($variables) {
  * @ingroup themeable
  */
 function theme_token_tree($variables) {
+  /** @var \Drupal\token\Token $token_service */
+  $token_service = \Drupal::token();
   $token_types = $variables['token_types'];
-  $info = token_get_info();
+  $info = $token_service->getInfo();
 
   if ($token_types == 'all') {
     $token_types = array_keys($info['types']);
   }
   elseif ($variables['global_types']) {
-    $token_types = array_merge($token_types, token_get_global_token_types());
+    $token_types = array_merge($token_types, $token_service->getGlobalTokenTypes());
   }
 
   $element = array(
