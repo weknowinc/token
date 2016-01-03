@@ -26,7 +26,7 @@ class TokenFieldUiTest extends TokenTestBase {
    *
    * @var array
    */
-  public static $modules = ['path', 'token', 'token_test', 'field_ui', 'node'];
+  public static $modules = ['path', 'token', 'token_test', 'field_ui', 'node', 'image'];
 
   /**
    * {@inheritdoc}
@@ -54,6 +54,17 @@ class TokenFieldUiTest extends TokenTestBase {
       'entity_type' => 'node',
       'bundle' => 'article',
     ))->save();
+    entity_create('field_storage_config', array(
+      'field_name' => 'field_image',
+      'entity_type' => 'node',
+      'type' => 'image',
+    ))->save();
+    entity_create('field_config', array(
+      'field_name' => 'field_image',
+      'label' => 'Image',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+    ))->save();
 
     entity_get_form_display('node', 'article', 'default')
       ->setComponent('field_body', [
@@ -67,10 +78,16 @@ class TokenFieldUiTest extends TokenTestBase {
       ->save();
   }
 
-  public function testBrowseByLink() {
-    $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_body');
+  public function testFileFieldUi() {
+    $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_image');
+
+    // Ensure the 'Browse available tokens' link is present and correct.
     $this->assertLink('Browse available tokens.');
     $this->assertLinkByHref('token/tree');
+
+    // Ensure that the default file directory value validates correctly.
+    $this->drupalPostForm(NULL, [], t('Save settings'));
+    $this->assertText(t('Saved Image configuration.'));
   }
 
   public function testFieldDescriptionTokens() {
