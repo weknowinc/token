@@ -61,7 +61,7 @@ class TreeBuilder implements TreeBuilderInterface {
     ];
 
     // Do not allow past the maximum token information depth.
-    $options['depth'] = min($options['depth'], TOKEN_MAX_DEPTH);
+    $options['depth'] = min($options['depth'], static::MAX_DEPTH);
 
     // If $token_type is an entity, make sure we are using the actual token type.
     if ($entity_token_type = $this->entityMapper->getTokenTypeForEntityType($token_type)) {

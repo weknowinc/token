@@ -18,11 +18,6 @@ use Drupal\Core\Utility\Token;
 use Drupal\Core\Url;
 
 /**
- * The maximum depth for token tree recursion.
- */
-define('TOKEN_MAX_DEPTH', 9);
-
-/**
  * Implements hook_help().
  */
 function token_help($route_name, RouteMatchInterface $route_match) {

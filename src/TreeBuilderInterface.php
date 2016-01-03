@@ -10,6 +10,11 @@ namespace Drupal\token;
 interface TreeBuilderInterface {
 
   /**
+   * The maximum depth for token tree recursion.
+   */
+  const MAX_DEPTH = 9;
+
+  /**
    * Build a tree array of tokens used for themeing or information.
    *
    * @param string $token_type
