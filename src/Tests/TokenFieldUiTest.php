@@ -17,6 +17,11 @@ use Drupal\node\Entity\NodeType;
 class TokenFieldUiTest extends TokenTestBase {
 
   /**
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $adminUser;
+
+  /**
    * Modules to enable.
    *
    * @var array
@@ -28,8 +33,8 @@ class TokenFieldUiTest extends TokenTestBase {
    */
   public function setUp($modules = []) {
     parent::setUp();
-    $this->admin_user = $this->drupalCreateUser(['administer content types', 'administer node fields']);
-    $this->drupalLogin($this->admin_user);
+    $this->adminUser = $this->drupalCreateUser(['administer content types', 'administer node fields']);
+    $this->drupalLogin($this->adminUser);
 
     $node_type = NodeType::create([
       'type' => 'article',
@@ -49,11 +54,32 @@ class TokenFieldUiTest extends TokenTestBase {
       'entity_type' => 'node',
       'bundle' => 'article',
     ))->save();
+
+    entity_get_form_display('node', 'article', 'default')
+      ->setComponent('field_body', [
+        'type' => 'text_textarea_with_summary',
+        'settings' => [
+          'rows' => '9',
+          'summary_rows' => '3',
+        ],
+        'weight' => 5,
+      ])
+      ->save();
   }
 
   public function testBrowseByLink() {
     $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_body');
     $this->assertLink('Browse available tokens.');
     $this->assertLinkByHref('token/tree');
+  }
+
+  public function testFieldDescriptionTokens() {
+    $edit = [
+      'description' => 'The site is called [site:name].',
+    ];
+    $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_body', $edit, 'Save settings');
+
+    $this->drupalGet('node/add/article');
+    $this->assertText('The site is called Drupal.');
   }
 }

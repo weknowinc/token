@@ -93,29 +93,6 @@ function token_theme() {
 }
 
 /**
- * Implements hook_form_alter().
- *
- * Adds a submit handler to forms which could affect the tokens available on
- * the site.
- */
-function token_form_alter(&$form, $form_state, $form_id) {
-  switch ($form_id) {
-    // Profile field forms.
-    case 'profile_field_form':
-    case 'profile_field_delete':
-    // User picture form.
-    case 'user_admin_settings':
-    // System date type form.
-    // @todo Remove when http://drupal.org/node/1173706 is fixed.
-    case 'system_add_date_format_type_form':
-    case 'system_delete_date_format_type_form':
-      $form += array('#submit' => array());
-      array_unshift($form['#submit'], 'token_clear_cache');
-      break;
-  }
-}
-
-/**
  * Implements hook_block_view_alter().
  */
 function token_block_view_alter(&$build, BlockPluginInterface $block) {
@@ -135,16 +112,6 @@ function token_form_block_form_alter(&$form, FormStateInterface $form_state) {
   $form['settings']['label']['#description'] = t('This field supports tokens.');
   $form['settings']['label']['#element_validate'][] = 'token_element_validate';
   $form['settings']['label'] += array('#token_types' => array());
-}
-
-/**
- * Implements hook_widget_form_alter().
- */
-function token_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
-  if (!empty($element['#description']) && is_string($element['#description'])) {
-    /* @var \Drupal\Core\Field\FieldItemListInterface $context['items'] */
-    $element['#description'] = Xss::filterAdmin(\Drupal::token()->replace($context['items']->getFieldDefinition()->getDescription()));
-  }
 }
 
 /**
@@ -196,6 +163,20 @@ function token_field_display_alter(&$display, $context) {
       $display['module'] = $formatter_info['module'];
     }
   }
+}
+
+/**
+ * Implements hook_date_format_insert().
+ */
+function token_date_format_insert() {
+  token_clear_cache();
+}
+
+/**
+ * Implements hook_date_format_delete().
+ */
+function token_date_format_delete() {
+  token_clear_cache();
 }
 
 /**
@@ -502,18 +483,17 @@ function token_form_field_config_edit_form_alter(&$form, FormStateInterface $for
  * Alters the configure action form to add token context validation and
  * adds the token tree for a better token UI and selection.
  */
-function token_form_system_actions_configure_alter(&$form, $form_state) {
-  $action = actions_function_lookup($form['actions_action']['#value']);
-
-  switch ($action) {
-    case 'system_message_action':
-    case 'system_send_email_action':
-    case 'system_goto_action':
-      $form['token_tree'] = array(
+function token_form_action_add_form_alter(&$form, $form_state) {
+  switch ($form['plugin']['#value']) {
+    case 'action_message_action':
+    case 'action_send_email_action':
+    case 'action_goto_action':
+      $form['token_tree'] = [
         '#theme' => 'token_tree_link',
         '#token_types' => 'all',
         '#weight' => 100,
-      );
+      ];
+      $form['actions']['#weight'] = 101;
       // @todo Add token validation to the action fields that can use tokens.
       break;
   }
@@ -526,7 +506,7 @@ function token_form_system_actions_configure_alter(&$form, $form_state) {
  * adds the token tree for a better token UI and selection.
  */
 function token_form_user_admin_settings_alter(&$form, FormStateInterface $form_state) {
-  $email_token_help = t('Available variables are: [site:name], [site:url], [user:name], [user:mail], [site:login-url], [site:url-brief], [user:edit-url], [user:one-time-login-url], [user:cancel-url].');
+  $email_token_help = t('Available variables are: [site:name], [site:url], [user:display-name], [user:account-name], [user:mail], [site:login-url], [site:url-brief], [user:edit-url], [user:one-time-login-url], [user:cancel-url].');
 
   foreach (Element::children($form) as $key) {
     $element = &$form[$key];
