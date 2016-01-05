@@ -483,28 +483,6 @@ function token_form_user_admin_settings_alter(&$form, FormStateInterface $form_s
 }
 
 /**
- * Build a tree array of tokens used for themeing or information.
- *
- * @param $token_type
- *   The token type.
- * @param $flat_tree
- *   A boolean if TRUE will only make a flat array of tokens, otherwise
- *   child tokens will be inside the 'children' parameter of a token.
- * @param $show_restricted
- *   A boolean if TRUE will show restricted tokens. Otherwise they will be
- *   hidden. Default is FALSE.
- * @param $recursion_limit
- *   An integer with the maximum number of token levels to recurse.
- * @param $parents
- *   An optional array with the current parents of the tokens.
- *
- * @deprecated
- */
-function token_build_tree($token_type, array $options = array()) {
-  return \Drupal::service('token.tree_builder')->buildTree($token_type, $options);
-}
-
-/**
  * Get a translated book menu link by its mlid, without access checking.
  *
  * This function is a copy of book_link_load() but with its own cache and a

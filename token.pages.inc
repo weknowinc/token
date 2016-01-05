@@ -129,7 +129,7 @@ function theme_token_tree($variables) {
       $rows[] = $row;
     }
 
-    $tree = token_build_tree($type, $options);
+    $tree = \Drupal::service('token.tree_builder')->buildTree($type, $options);
     foreach ($tree as $token => $token_info) {
       if (!empty($token_info['restricted']) && empty($variables['show_restricted'])) {
         continue;
