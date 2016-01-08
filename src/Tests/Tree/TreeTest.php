@@ -71,6 +71,17 @@ class TreeTest extends TokenTestBase {
 
     $this->assertTokenInTree('[user:account-name]', 'user');
     $this->assertTokenInTree('[user:original:account-name]', 'user--original');
+
+    // Assert some of the restricted tokens to ensure they are not shown.
+    $this->assertTokenNotInTree('[user:one-time-login-url]', 'user');
+    $this->assertTokenNotInTree('[user:original:cancel-url]', 'user--original');
+
+    // Request with show_restricted set to TRUE to show restricted tokens and
+    // check for them.
+    $this->drupalGet($this->getTokenTreeUrl(['token_types' => ['user'], 'show_restricted' => TRUE]));
+    $this->assertEqual('MISS', $this->drupalGetHeader('x-drupal-dynamic-cache'), 'Cache was not hit');
+    $this->assertTokenInTree('[user:one-time-login-url]', 'user');
+    $this->assertTokenInTree('[user:original:cancel-url]', 'user--original');
   }
 
   /**

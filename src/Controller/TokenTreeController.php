@@ -20,6 +20,13 @@ class TokenTreeController extends ControllerBase {
    * Page callback to output a token tree as an empty page.
    */
   function outputTree(Request $request) {
+    $build = [
+      '#cache' => [
+        'contexts' => [
+          'url.query_args:options',
+        ],
+      ],
+    ];
     $build['#title'] = $this->t('Available tokens');
 
     $options = $request->query->has('options') ? Json::decode($request->query->get('options')) : array();
