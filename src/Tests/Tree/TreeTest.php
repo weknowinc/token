@@ -62,6 +62,29 @@ class TreeTest extends TokenTestBase {
   }
 
   /**
+   * Test various tokens that are possible on the site.
+   */
+  public function testGlobalTokens() {
+    $this->drupalGet($this->getTokenTreeUrl());
+
+    $this->assertTokenGroup('Current date');
+    $this->assertTokenGroup('Site information');
+
+    // Assert that non-global tokens are not listed.
+    $this->assertTokenNotInTree('[user:account-name]', 'user');
+    $this->assertTokenNotInTree('[user:original:account-name]', 'user--original');
+
+    // Assert some of the global tokens, just to be sure.
+    $this->assertTokenInTree('[current-date:html_date]', 'current-date');
+    $this->assertTokenInTree('[current-date:html_week]', 'current-date');
+
+    $this->assertTokenInTree('[current-user:account-name]', 'current-user');
+
+    $this->assertTokenInTree('[current-page:url:unaliased]', 'current-page--url');
+    $this->assertTokenInTree('[current-page:url:unaliased:args]', 'current-page--url--unaliased');
+  }
+
+  /**
    * Tests if the token browser displays the user tokens.
    */
   public function testUserTokens() {

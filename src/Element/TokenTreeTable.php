@@ -32,6 +32,7 @@ class TokenTreeTable extends Table {
       '#empty' => '',
       '#show_restricted' => FALSE,
       '#skip_empty_values' => FALSE,
+      '#click_insert' => TRUE,
       '#sticky' => FALSE,
       '#responsive' => TRUE,
       '#input' => FALSE,
@@ -97,6 +98,12 @@ class TokenTreeTable extends Table {
     }
 
     $element['#attributes']['class'][] = 'token-tree';
+
+    if ($element['#click_insert']) {
+      $element['#caption'] = t('Click a token to insert it into the field you\'ve last clicked.');
+      $element['#attributes']['class'][] = 'token-click-insert';
+    }
+
     return $element;
   }
 

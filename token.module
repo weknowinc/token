@@ -22,17 +22,14 @@ use Drupal\Core\Url;
  */
 function token_help($route_name, RouteMatchInterface $route_match) {
   if ($route_name == 'help.page.token') {
+    $token_tree = \Drupal::service('token.tree_builder')->buildAllRenderable([
+      'click_insert' => FALSE,
+      'show_restricted' => TRUE,
+    ]);
+
     $output = '<dl>';
     $output .= '<dt>' . t('List of the currently available tokens on this site') . '</dt>';
-    $token_tree = array(
-      '#theme' => 'token_tree',
-      '#token_types' => 'all',
-      '#click_insert' => FALSE,
-      '#show_restricted' => TRUE,
-    );
-    /** @var \Drupal\Core\Render\RendererInterface $renderer */
-    $renderer = \Drupal::service('renderer');
-    $output .= '<dd>' . $renderer->render($token_tree) . '</dd>';
+    $output .= '<dd>' . \Drupal::service('renderer')->render($token_tree) . '</dd>';
     $output .= '</dl>';
     return $output;
   }
@@ -49,17 +46,6 @@ function _token_core_supported_modules() {
  * Implements hook_theme().
  */
 function token_theme() {
-  $info['token_tree'] = array(
-    'variables' => array(
-      'token_types' => array(),
-      'global_types' => TRUE,
-      'click_insert' => TRUE,
-      'show_restricted' => FALSE,
-      'recursion_limit' => 3,
-    ),
-    'function' => 'theme_token_tree',
-    'file' => 'token.pages.inc',
-  );
   $info['token_tree_link'] = [
     'variables' => [
       'token_types' => [],
@@ -69,7 +55,7 @@ function token_theme() {
       'recursion_limit' => 3,
       'text' => NULL,
       'options' => [],
-    ] + $info['token_tree']['variables'],
+    ],
     'file' => 'token.pages.inc',
   ];
 
