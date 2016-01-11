@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\token\Tests\TokenEntityTest.
+ * Contains \Drupal\Tests\token\Kernel\EntityTest.
  */
 
-namespace Drupal\token\Tests;
+namespace Drupal\Tests\token\Kernel;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\node\Entity\Node;
@@ -17,7 +17,7 @@ use Drupal\taxonomy\VocabularyInterface;
  *
  * @group token
  */
-class TokenEntityTest extends TokenKernelTestBase {
+class EntityTest extends KernelTestBase {
 
   /**
    * Modules to enable.
