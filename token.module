@@ -188,42 +188,12 @@ function token_clear_cache() {
 }
 
 /**
- * Return an array of entity type to token type mappings.
- *
- * Why do we need this? Because when the token API was moved to core we did not
- * re-use the entity type as the base name for taxonomy terms and vocabulary
- * tokens.
- *
- * @see token_entity_info_alter()
- * @see http://drupal.org/node/737726
- *
- * @deprecated
- */
-function token_get_entity_mapping($value_type = 'token', $value = NULL, $fallback = FALSE) {
-  /** @var \Drupal\token\TokenEntityMapperInterface $mapper */
-  $mapper = \Drupal::service('token.entity_mapper');
-
-  if (empty($value)) {
-    $mappings = $mapper->getEntityTypeMappings();
-    return $value_type == 'token' ? array_flip($mappings) : $mappings;
-  }
-
-  switch ($value_type) {
-    case 'token':
-      return $mapper->getEntityTypeForTokenType($value, $fallback);
-
-    case 'entity':
-      return $mapper->getTokenTypeForEntityType($value, $fallback);
-  }
-}
-
-/**
  * Implements hook_entity_type_alter().
  *
  * Because some token types to do not match their entity type names, we have to
  * map them to the proper type. This is purely for other modules' benefit.
  *
- * @see token_get_entity_mapping()
+ * @see \Drupal\token\TokenEntityMapperInterface::getEntityTypeMappings()
  * @see http://drupal.org/node/737726
  */
 function token_entity_type_alter(array &$entity_types) {
