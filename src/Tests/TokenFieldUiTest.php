@@ -26,7 +26,7 @@ class TokenFieldUiTest extends TokenTestBase {
    *
    * @var array
    */
-  public static $modules = ['path', 'token', 'token_test', 'field_ui', 'node', 'image'];
+  public static $modules = ['field_ui', 'node', 'image'];
 
   /**
    * {@inheritdoc}

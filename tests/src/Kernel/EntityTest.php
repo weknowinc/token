@@ -24,7 +24,7 @@ class EntityTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('path', 'token', 'token_test', 'node', 'taxonomy', 'text');
+  public static $modules = ['node', 'taxonomy', 'text'];
 
   /**
    * {@inheritdoc}

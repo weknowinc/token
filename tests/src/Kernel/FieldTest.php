@@ -35,7 +35,7 @@ class FieldTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('path', 'token', 'token_test', 'node', 'text', 'field', 'filter');
+  public static $modules = ['node', 'text', 'field', 'filter'];
 
   /**
    * {@inheritdoc}

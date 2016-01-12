@@ -29,7 +29,7 @@ class TreeTest extends TokenTestBase {
    *
    * @var array
    */
-  public static $modules = ['token_test', 'node'];
+  public static $modules = ['node'];
 
   public function setUp() {
     parent::setUp();
@@ -127,8 +127,8 @@ class TreeTest extends TokenTestBase {
    * different from the session inside the test environment. This is why the
    * link has to be generated inside the environment.
    *
-   * This function calls a page in token_test module which generates the link
-   * and the token. This then replaces the options query parameter with the
+   * This function calls a page in token_module_test module which generates the
+   * link and the token. This then replaces the options query parameter with the
    * specified options.
    *
    * @param array $options
@@ -138,7 +138,7 @@ class TreeTest extends TokenTestBase {
    *   The complete URL of the token tree browser with the CSRF token.
    */
   protected function getTokenTreeUrl($options = []) {
-    $this->drupalGet('token_test/browse');
+    $this->drupalGet('token_module_test/browse');
     $links = $this->xpath('//a[contains(@href, :href)]/@href', array(':href' => 'token/tree'));
     $link = $this->getAbsoluteUrl((string) current($links));
     if (!empty($options)) {

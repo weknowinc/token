@@ -26,7 +26,7 @@ class CommentTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('path', 'token', 'token_test', 'node', 'comment', 'user', 'field', 'text', 'entity_reference', 'system');
+  public static $modules = ['node', 'comment', 'field', 'text', 'entity_reference'];
 
   /**
    * {@inheritdoc}

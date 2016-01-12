@@ -22,7 +22,7 @@ abstract class KernelTestBase extends BaseKernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['path', 'token', 'token_test', 'system', 'user'];
+  public static $modules = ['path', 'token', 'token_module_test', 'system', 'user'];
 
   /**
    * {@inheritdoc}

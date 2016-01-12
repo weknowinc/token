@@ -19,19 +19,19 @@ class DateTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['system'];
+  public static $modules = [];
 
   /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
-    $this->installConfig(['system', 'token_test']);
+    $this->installConfig(['system', 'token_module_test']);
   }
 
   function testDateTokens() {
     $tokens = array(
-      'token_test' => '1984',
+      'token_module_test' => '1984',
       'invalid_format' => NULL,
     );
 

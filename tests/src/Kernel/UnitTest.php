@@ -23,7 +23,7 @@ class UnitTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = array('file', 'node', 'token_test');
+  public static $modules = ['file', 'node'];
 
   /**
    * {@inheritdoc}
