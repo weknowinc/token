@@ -7,6 +7,7 @@
 
 namespace Drupal\Tests\token\Kernel;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Markup;
@@ -23,6 +24,11 @@ use Drupal\node\Entity\NodeType;
  * @group token
  */
 class FieldTest extends KernelTestBase {
+
+  /**
+   * @var \Drupal\filter\FilterFormatInterface
+   */
+  protected $testFormat;
 
   /**
    * Modules to enable.
@@ -61,14 +67,14 @@ class FieldTest extends KernelTestBase {
     ]);
     $field->save();
 
-    $view_mode = EntityViewMode::create([
-      'id' => 'node.token',
-      'targetEntityType' => 'node',
+    $this->testFormat = FilterFormat::create([
+      'format' => 'test',
+      'weight' => 1,
+      'filters' => [
+        'filter_html_escape' => ['status' => TRUE],
+      ],
     ]);
-    $view_mode->save();
-    $entity_display = entity_get_display('node', 'article', 'token');
-    $entity_display->setComponent('test_field', ['type' => 'text_default']);
-    $entity_display->save();
+    $this->testFormat->save();
   }
 
   /**
@@ -76,21 +82,12 @@ class FieldTest extends KernelTestBase {
    */
   public function testEntityFieldTokens() {
     // Create a node with a value in the text field and test its token.
-    $format = FilterFormat::create([
-      'format' => 'test',
-      'weight' => 1,
-      'filters' => [
-        'filter_html_escape' => ['status' => TRUE],
-      ],
-    ]);
-    $format->save();
-
     $entity = Node::create([
       'title' => 'Test node title',
       'type' => 'article',
       'test_field' => [
         'value' => 'foo',
-        'format' => $format->id(),
+        'format' => $this->testFormat->id(),
       ],
     ]);
     $entity->save();
@@ -155,4 +152,53 @@ class FieldTest extends KernelTestBase {
     $this->assertEqual($token_info['module'], 'token', 'The token info module is correct.');
   }
 
+  /**
+   * Test tokens on node with the token view mode overriding default formatters.
+   */
+  public function testTokenViewMode() {
+    $value = 'A really long string that should be trimmed by the special formatter on token view we are going to have.';
+
+    // The formatter we are going to use will eventually call Unicode::strlen.
+    // This expects that the Unicode has already been explicitly checked, which
+    // happens in DrupalKernel. But since that doesn't run in kernel tests, we
+    // explicitly call this here.
+    Unicode::check();
+
+    // Create a node with a value in the text field and test its token.
+    $entity = Node::create([
+      'title' => 'Test node title',
+      'type' => 'article',
+      'test_field' => [
+        'value' => $value,
+        'format' => $this->testFormat->id(),
+      ],
+    ]);
+    $entity->save();
+
+    $this->assertTokens('node', ['node' => $entity], [
+      'test_field' => Markup::create($value),
+    ]);
+
+    // Now, create a token view mode which sets a different format for
+    // test_field. When replacing tokens, this formatter should be picked over
+    // the default formatter for the field type.
+    // @see field_tokens().
+    $view_mode = EntityViewMode::create([
+      'id' => 'node.token',
+      'targetEntityType' => 'node',
+    ]);
+    $view_mode->save();
+    $entity_display = entity_get_display('node', 'article', 'token');
+    $entity_display->setComponent('test_field', [
+      'type' => 'text_trimmed',
+      'settings' => [
+        'trim_length' => 50,
+      ]
+    ]);
+    $entity_display->save();
+
+    $this->assertTokens('node', ['node' => $entity], [
+      'test_field' => Markup::create(substr($value, 0, 50)),
+    ]);
+  }
 }

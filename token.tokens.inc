@@ -1254,6 +1254,12 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
     // inside field_attach_view().
     unset($entity->_field_view_prepared);
 
+    $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')
+      ->load($entity->getEntityTypeId() . '.' . $entity->bundle() . '.token');
+    $token_view_display = (!empty($view_display) && $view_display->status());
+    /** @var \Drupal\Core\Field\FieldTypePluginManager $fieldTypeManager */
+    $fieldTypeManager = \Drupal::service('plugin.manager.field.field_type');
+
     foreach ($tokens as $name => $original) {
       // Replace the [entity:field-name] token only if token module added this
       // token.
@@ -1264,7 +1270,21 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
           continue;
         }
 
-        $field_output = $entity->$name->view('token');
+        $display_options = 'token';
+        if (!$token_view_display) {
+          // We don't have the token view display and should fall back on
+          // default formatters. If the field has specified a specific formatter
+          // to be used by default with tokens, use that, otherwise use the
+          // default formatter.
+          $field_type_definition = $fieldTypeManager->getDefinition($entity->getFieldDefinition($name)->getType());
+
+          $display_options = [
+            'type' => !empty($field_type_definition['default_token_formatter']) ? $field_type_definition['default_token_formatter'] : $field_type_definition['default_formatter'],
+            'label' => 'hidden',
+          ];
+        }
+
+        $field_output = $entity->$name->view($display_options);
         $field_output['#token_options'] = $options;
         $field_output['#pre_render'][] = 'token_pre_render_field_token';
         $replacements[$original] = $renderer->renderPlain($field_output);
