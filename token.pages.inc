@@ -46,9 +46,10 @@ function template_preprocess_token_tree_link(&$variables) {
   $variables['options']['attributes'] += [
     'data-dialog-type' => 'dialog',
     'data-dialog-options' => json_encode([
+      'dialogClass' => 'token-tree-dialog',
       'width' => 600,
       'height' => 400,
-      'position' => ['my' => 'right bottom', 'at' => 'right bottom'],
+      'position' => ['my' => 'right bottom', 'at' => 'right-10 bottom-10'],
       'draggable' => TRUE,
       'autoResize' => FALSE,
     ]),
