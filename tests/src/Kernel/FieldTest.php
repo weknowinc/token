@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\Tests\token\Kernel\FieldTest.
- */
-
 namespace Drupal\Tests\token\Kernel;
 
 use Drupal\Component\Utility\Unicode;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\TreeBuilderInterface.
- */
-
 namespace Drupal\token;
 
 interface TreeBuilderInterface {

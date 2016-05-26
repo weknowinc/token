@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\token\Kernel\NodeTest.
- */
-
 namespace Drupal\Tests\token\Kernel;
 
 use Drupal\node\Entity\NodeType;

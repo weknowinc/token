@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\Tree\TokenTreeTestTrait.
- */
-
 namespace Drupal\token\Tests\Tree;
 
 /**

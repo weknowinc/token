@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\TokenTestTrait.
- */
-
 namespace Drupal\token\Tests;
 
 use Drupal\Component\Render\MarkupInterface;

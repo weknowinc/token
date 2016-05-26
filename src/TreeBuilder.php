@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\TreeBuilder.
- */
-
 namespace Drupal\token;
 
 use Drupal\Core\Cache\Cache;

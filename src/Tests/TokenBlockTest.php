@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\TokenBlockTest.
- */
 namespace Drupal\token\Tests;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;

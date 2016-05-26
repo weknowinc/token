@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\token\Kernel\CommentTest.
- */
-
 namespace Drupal\Tests\token\Kernel;
 
 use Drupal\comment\Tests\CommentTestTrait;

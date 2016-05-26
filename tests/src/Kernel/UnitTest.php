@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\token\Kernel\UnitTest.
- */
 namespace Drupal\Tests\token\Kernel;
 
 /**

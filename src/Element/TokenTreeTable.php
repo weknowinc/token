@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Element\TokenTreeTable.
- */
-
 namespace Drupal\token\Element;
 
 use Drupal\Component\Utility\Html;

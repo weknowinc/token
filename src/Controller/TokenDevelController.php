@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Controller\TokenDevelController.
- */
-
 namespace Drupal\token\Controller;
 
 use Drupal\Core\Controller\ControllerBase;

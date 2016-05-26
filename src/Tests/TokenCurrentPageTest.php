@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\TokenCurrentPageTest.
- */
-
 namespace Drupal\token\Tests;
 
 /**

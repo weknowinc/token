@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\TokenMenuTest.
- */
 namespace Drupal\token\Tests;
 
 use Drupal\menu_link_content\Plugin\Menu\MenuLinkContent;

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\token\Kernel\FileTest.
- */
 namespace Drupal\Tests\token\Kernel;
 use Drupal\taxonomy\Entity\Vocabulary;
 

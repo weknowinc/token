@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\TokenUserTest.
- */
-
 namespace Drupal\token\Tests;
 
 use Drupal\Core\Session\AnonymousUserSession;

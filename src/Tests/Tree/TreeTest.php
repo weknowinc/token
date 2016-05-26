@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\token\Tests\Tree\TreeTest.
- */
-
 namespace Drupal\token\Tests\Tree;
 
 use Drupal\Component\Serialization\Json;
