@@ -37,7 +37,7 @@ class HelpPageTest extends TokenTestBase {
    */
   public function testHelpPageTree() {
     $this->drupalGet('admin/help/token');
-    $this->assertText('List of the currently available tokens on this site');
+    $this->assertText('The list of the currently available tokens on this site are shown below.');
 
     $this->assertTokenGroup('Array');
     $this->assertTokenGroup('Current date');

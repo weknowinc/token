@@ -26,9 +26,12 @@ function token_help($route_name, RouteMatchInterface $route_match) {
       'click_insert' => FALSE,
       'show_restricted' => TRUE,
     ]);
-
-    $output = '<dl>';
-    $output .= '<dt>' . t('List of the currently available tokens on this site') . '</dt>';
+    $output = '<h3>' . t('About') . '</h3>';
+    $output .= '<p>' . t('The <a href=":project">Token</a> module provides a user interface for the site token system. It also adds some additional tokens that are used extensively during site development. Tokens are specially formatted chunks of text that serve as placeholders for a dynamically generated value. For more information, covering both the token system and the additional tools provided by the Token module, see the <a href=":online">online documentation</a>.', [':online' => 'https://www.drupal.org/documentation/modules/token', ':project' => 'https://www.drupal.org/project/token']) . '</p>';
+    $output .= '<h3>' . t('Uses') . '</h3>';
+    $output .= '<p>' . t('Your website uses a shared token system for exposing and using placeholder tokens and their appropriate replacement values. This allows for any module to provide placeholder tokens for strings without having to reinvent the wheel. It also ensures consistency in the syntax used for tokens, making the system as a whole easier for end users to use.') . '</p>';
+    $output .= '<dl>';
+    $output .= '<dt>' . t('The list of the currently available tokens on this site are shown below.') . '</dt>';
     $output .= '<dd>' . \Drupal::service('renderer')->render($token_tree) . '</dd>';
     $output .= '</dl>';
     return $output;
