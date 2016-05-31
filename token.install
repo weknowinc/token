@@ -19,10 +19,15 @@ function token_requirements($phase = 'runtime') {
       if (!empty($problem['problems'])) {
         $problems = array_unique($problem['problems']);
         $problems = array_map('\Drupal\Component\Utility\SafeMarkup::checkPlain', $problems);
+
+        $build = [
+          '#theme' => 'item_list',
+          '#items' => $problems,
+        ];
+
         $requirements['token-' . $problem_key] = array(
           'title' => $problem['label'],
-          // @todo Use render arrays. See https://drupal.org/node/2195739
-          'value' => \Drupal::theme()->render('item_list', array('items' => $problems)),
+          'value' => \Drupal::service('renderer')->renderPlain($build),
           'severity' => $problem['severity'],
         );
       }
