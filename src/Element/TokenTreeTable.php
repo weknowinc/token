@@ -109,6 +109,7 @@ class TokenTreeTable extends Table {
   protected static function formatRow($token, $token_info, $columns, $is_group = FALSE) {
     $row = [
       'id' => static::cleanCssIdentifier($token),
+      'data-tt-id' => static::cleanCssIdentifier($token),
       'class' => [],
       'data' => [],
     ];
@@ -139,7 +140,7 @@ class TokenTreeTable extends Table {
       $row['class'][] = 'token-group';
     }
     elseif (!empty($token_info['parent'])) {
-      $row['class'][] = 'child-of-' . static::cleanCssIdentifier($token_info['parent']);
+      $row['data-tt-parent-id'] = static::cleanCssIdentifier($token_info['parent']);
       unset($row['parent']);
     }
 

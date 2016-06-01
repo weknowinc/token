@@ -101,7 +101,7 @@ trait TokenTreeTestTrait {
   protected function getXpathForTokenInTree($token, $parent = '') {
     $xpath = "//tr";
     if ($parent) {
-      $xpath .= '[contains(@class, "child-of-token-' . $parent . ' ")]';
+      $xpath .= '[@data-tt-parent-id="token-' . $parent . '"]';
     }
     $xpath .= '/td[contains(@class, "token-key") and text() = "' . $token . '"]';
     return $xpath;
