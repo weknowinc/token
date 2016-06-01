@@ -595,7 +595,7 @@ function token_taxonomy_term_load_all_parents($tid) {
   if (!isset($cache[$tid])) {
     $cache[$tid] = array();
     /** @var \Drupal\taxonomy\TermStorageInterface $term_storage */
-    $term_storage = \Drupal::entityManager()->getStorage('taxonomy_term');
+    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
     $parents = $term_storage->loadAllParents($tid);
     // Remove this term from the array.
     array_shift($parents);

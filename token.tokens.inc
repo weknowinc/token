@@ -60,7 +60,7 @@ function token_token_info_alter(&$info) {
   $info['tokens']['user']['url']['type'] = 'url';
 
   // Add [token:url] tokens for any URI-able entities.
-  $entities = \Drupal::entityManager()->getDefinitions();
+  $entities = \Drupal::entityTypeManager()->getDefinitions();
   foreach ($entities as $entity => $entity_info) {
     /* @var \Drupal\Core\Entity\EntityType $entity_info */
     if (!$entity_info->get('token_type')) {
@@ -96,7 +96,7 @@ function token_token_info_alter(&$info) {
 
   // Add support for custom date formats.
   // @todo Remove when http://drupal.org/node/1173706 is fixed.
-  $date_format_types = \Drupal::entityManager()->getStorage('date_format')->loadMultiple();
+  $date_format_types = \Drupal::entityTypeManager()->getStorage('date_format')->loadMultiple();
   foreach ($date_format_types as $date_format_type => $date_format_type_info) {
     /* @var \Drupal\system\Entity\DateFormat $date_format_type_info */
     if (!isset($info['tokens']['date'][$date_format_type])) {
@@ -395,7 +395,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     $date = !empty($data['date']) ? $data['date'] : REQUEST_TIME;
 
     // @todo Remove when http://drupal.org/node/1173706 is fixed.
-    $date_format_types = \Drupal::entityManager()->getStorage('date_format')->loadMultiple();
+    $date_format_types = \Drupal::entityTypeManager()->getStorage('date_format')->loadMultiple();
     foreach ($tokens as $name => $original) {
       if (isset($date_format_types[$name]) && _token_module('date', $name) == 'token') {
         $replacements[$original] = format_date($date, $name, '', NULL, $langcode);
@@ -432,7 +432,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           $replacements[$original] = (string) $node->revision_log->value;
           break;
         case 'content-type':
-          $type_name = \Drupal::entityManager()->getStorage('node_type')->load($node->getType())->label();
+          $type_name = \Drupal::entityTypeManager()->getStorage('node_type')->load($node->getType())->label();
           $replacements[$original] = $type_name;
           break;
       }
@@ -486,7 +486,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     $term = $data['term'];
 
     /** @var \Drupal\taxonomy\TermStorageInterface $term_storage */
-    $term_storage = \Drupal::entityManager()->getStorage('taxonomy_term');
+    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
 
     foreach ($tokens as $name => $original) {
       switch ($name) {
@@ -1151,7 +1151,7 @@ function field_token_info_alter(&$info) {
   $type_info = \Drupal::service('plugin.manager.field.field_type')->getDefinitions();
 
   // Attach field tokens to their respecitve entity tokens.
-  foreach (\Drupal::entityManager()->getDefinitions() as $entity_type_id => $entity_type) {
+  foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type_id => $entity_type) {
     if (!$entity_type->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface')) {
       continue;
     }
@@ -1162,7 +1162,7 @@ function field_token_info_alter(&$info) {
       continue;
     }
 
-    $fields = \Drupal::entityManager()->getFieldStorageDefinitions($entity_type_id);
+    $fields = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
     foreach ($fields as $field_name => $field) {
       if (!($field instanceof FieldStorageConfigInterface)) {
         continue;
