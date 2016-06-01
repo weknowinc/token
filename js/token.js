@@ -1,7 +1,7 @@
 
 (function ($) {
 
-  "use strict";
+  'use strict';
 
   Drupal.behaviors.tokenTree = {
     attach: function (context, settings) {
