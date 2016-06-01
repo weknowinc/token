@@ -2,8 +2,8 @@
 
 namespace Drupal\Tests\token\Kernel;
 
-use Drupal\node\Entity\NodeType;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Test the node and content type tokens.

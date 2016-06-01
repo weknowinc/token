@@ -2,7 +2,6 @@
 
 namespace Drupal\token\Tests;
 
-use Drupal\menu_link_content\Plugin\Menu\MenuLinkContent;
 use Drupal\node\Entity\Node;
 
 /**

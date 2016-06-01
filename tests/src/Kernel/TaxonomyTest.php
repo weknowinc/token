@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\token\Kernel;
 
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\taxonomy\Entity\Vocabulary;
 

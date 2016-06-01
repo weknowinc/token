@@ -1,7 +1,6 @@
 <?php
 
 namespace Drupal\Tests\token\Kernel;
-use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Tests file tokens.

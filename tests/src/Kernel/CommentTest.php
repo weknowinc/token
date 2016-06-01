@@ -2,10 +2,10 @@
 
 namespace Drupal\Tests\token\Kernel;
 
-use Drupal\comment\Tests\CommentTestTrait;
-use Drupal\node\Entity\NodeType;
-use Drupal\node\Entity\Node;
 use Drupal\comment\Entity\Comment;
+use Drupal\comment\Tests\CommentTestTrait;
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Tests comment tokens.

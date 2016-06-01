@@ -4,9 +4,7 @@ namespace Drupal\Tests\token\Kernel;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\Entity\EntityViewMode;
-use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Markup;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\filter\Entity\FilterFormat;
