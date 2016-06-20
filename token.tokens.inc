@@ -1060,20 +1060,35 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'menu-link':
-          $url = $node->urlInfo();
-          if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
-            $link = reset($links);
-            $replacements[$original] = $link->getTitle();
+          // On node-form save we populate a calculated field with a menu_link
+          // references.
+          // @see token_node_menu_link_submit()
+          if ($node->getFieldDefinition('menu_link') && $menu_link = $node->menu_link->entity) {
+            /** @var \Drupal\menu_link_content\MenuLinkContentInterface $menu_link */
+            $replacements[$original] = $menu_link->getTitle();
+          }
+          else {
+            $url = $node->urlInfo();
+            if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
+              $link = reset($links);
+              $replacements[$original] = $link->getTitle();
+            }
           }
           break;
       }
 
       // Chained token relationships.
       if ($menu_tokens = \Drupal::token()->findWithPrefix($tokens, 'menu-link')) {
-        $url = $node->urlInfo();
-        if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
-          $link = reset($links);
-          $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $link), $options, $bubbleable_metadata);
+        if ($node->getFieldDefinition('menu_link') && $menu_link = $node->menu_link->entity) {
+          /** @var \Drupal\menu_link_content\MenuLinkContentInterface $menu_link */
+          $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $menu_link), $options, $bubbleable_metadata);
+        }
+        else {
+          $url = $node->urlInfo();
+          if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
+            $link = reset($links);
+            $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $link), $options, $bubbleable_metadata);
+          }
         }
       }
     }
