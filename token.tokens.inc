@@ -5,6 +5,7 @@
  * Token callbacks for the token module.
  */
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Crypt;
@@ -69,7 +70,12 @@ function token_token_info_alter(&$info) {
 
     $token_type = $entity_info->get('token_type');
     if (!isset($info['types'][$token_type]) || !isset($info['tokens'][$token_type])) {
-      continue;
+      // Define tokens for entity type's without their own integration.
+      $info['types'][$entity_info->id()] = [
+        'name' => $entity_info->getLabel(),
+        'needs-data' => $entity_info->id(),
+        'module' => 'token',
+      ];
     }
 
     // Add [entity:url] tokens if they do not already exist.
@@ -1179,16 +1185,23 @@ function field_token_info_alter(&$info) {
 
     $fields = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
     foreach ($fields as $field_name => $field) {
-      if (!($field instanceof FieldStorageConfigInterface)) {
-        continue;
-      }
-      // If a token already exists for this field, then don't add it.
-      if (isset($info['tokens'][$token_type][$field_name])) {
+      // Ensure the token type exists.
+      if (!isset($info['types'][$token_type])) {
         continue;
       }
 
-      // Ensure the tokens exist.
-      if (!isset($info['types'][$token_type]) || !isset($info['tokens'][$token_type])) {
+      // Ensure the token implements FieldStorageConfigInterface or is defined
+      // in token module.
+      $provider = '';
+      if (isset($info['types'][$token_type]['module'])) {
+        $provider = $info['types'][$token_type]['module'];
+      }
+      if (!($field instanceof FieldStorageConfigInterface) && $provider != 'token') {
+        continue;
+      }
+
+      // If a token already exists for this field, then don't add it.
+      if (isset($info['tokens'][$token_type][$field_name])) {
         continue;
       }
 
@@ -1224,7 +1237,9 @@ function field_token_info_alter(&$info) {
  *
  * Therefore it looks up in all bundles to find the most used instance.
  *
- * Based on field_views_field_label().
+ * Based on views_entity_field_label().
+ *
+ * @todo Resync this method with views_entity_field_label().
  */
 function _token_field_label($entity_type, $field_name) {
   $labels = [];
@@ -1233,7 +1248,7 @@ function _token_field_label($entity_type, $field_name) {
     $bundle_instances = \Drupal::service('entity_field.manager')->getFieldDefinitions($entity_type, $bundle);
     if (isset($bundle_instances[$field_name])) {
       $instance = $bundle_instances[$field_name];
-      $label = $instance->getLabel();
+      $label = (string) $instance->getLabel();
       $labels[$label] = isset($labels[$label]) ? ++$labels[$label] : 1;
     }
   }
@@ -1280,11 +1295,10 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
       // token.
       if ($entity->hasField($name) && _token_module($data['token_type'], $name) == 'token') {
 
-        // Do not continue if the field is empty or not a configurable field.
-        if ($entity->get($name)->isEmpty() || !($entity->getFieldDefinition($name) instanceof FieldConfigInterface)) {
+        // Do not continue if the field is empty.
+        if ($entity->get($name)->isEmpty()) {
           continue;
         }
-
         $display_options = 'token';
         if (!$token_view_display) {
           // We don't have the token view display and should fall back on

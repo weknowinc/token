@@ -3,6 +3,7 @@
 namespace Drupal\Tests\token\Kernel;
 
 use Drupal\Component\Utility\Unicode;
+use Drupal\contact\Entity\ContactForm;
 use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\Core\Render\Markup;
 use Drupal\field\Entity\FieldConfig;
@@ -10,6 +11,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\contact\Entity\Message;
 
 /**
  * Tests field tokens.
@@ -28,7 +30,7 @@ class FieldTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'text', 'field', 'filter'];
+  public static $modules = ['node', 'text', 'field', 'filter', 'contact'];
 
   /**
    * {@inheritdoc}
@@ -193,5 +195,50 @@ class FieldTest extends KernelTestBase {
     $this->assertTokens('node', ['node' => $entity], [
       'test_field' => Markup::create(substr($value, 0, 50)),
     ]);
+  }
+
+  /**
+   * Test that tokens are properly created for an entity's base fields.
+   */
+  public function testBaseFieldTokens() {
+    // Create a new contact_message entity and verify that tokens are generated
+    // for its base fields. The contact_message entity type is used because it
+    // provides no tokens by default.
+    $contact_form = ContactForm::create([
+      'id' => 'form_id',
+    ]);
+    $contact_form->save();
+
+    $entity = Message::create([
+      'contact_form' => 'form_id',
+      'uuid' => '123',
+      'langcode' => 'en',
+      'name' => 'Test name',
+      'mail' => 'Test mail',
+      'subject' => 'Test subject',
+      'message' => 'Test message',
+      'copy' => FALSE,
+    ]);
+    $entity->save();
+
+    $this->assertTokens('contact_message', ['contact_message' => $entity], [
+      'uuid' => Markup::create('123'),
+      'langcode' => Markup::create('English'),
+      'name' => Markup::create('Test name'),
+      'mail' => Markup::create('Test mail'),
+      'subject' => Markup::create('Test subject'),
+      'message' => Markup::create('Test message'),
+      'copy' => 'Off',
+    ]);
+
+    // Test the metadata of one of the tokens.
+    $tokenService = \Drupal::service('token');
+    $token_info = $tokenService->getTokenInfo('contact_message', 'subject');
+    $this->assertEquals($token_info['name'], 'Subject');
+    $this->assertEquals($token_info['description'], 'Text (plain) field.');
+    $this->assertEquals($token_info['module'], 'token');
+
+    // Verify that node entity type doesn't have a uid token.
+    $this->assertNull($tokenService->getTokenInfo('node', 'uid'));
   }
 }
