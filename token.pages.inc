@@ -28,6 +28,7 @@ function template_preprocess_token_tree_link(&$variables) {
     'global_types' => TRUE,
     'click_insert' => TRUE,
     'show_restricted' => FALSE,
+    'show_nested' => FALSE,
     'recursion_limit' => 3,
   ];
   $query_options = array_intersect_key($variables, $tree_variables);

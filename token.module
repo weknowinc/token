@@ -24,6 +24,7 @@ function token_help($route_name, RouteMatchInterface $route_match) {
     $token_tree = \Drupal::service('token.tree_builder')->buildAllRenderable([
       'click_insert' => FALSE,
       'show_restricted' => TRUE,
+      'show_nested' => FALSE,
     ]);
     $output = '<h3>' . t('About') . '</h3>';
     $output .= '<p>' . t('The <a href=":project">Token</a> module provides a user interface for the site token system. It also adds some additional tokens that are used extensively during site development. Tokens are specially formatted chunks of text that serve as placeholders for a dynamically generated value. For more information, covering both the token system and the additional tools provided by the Token module, see the <a href=":online">online documentation</a>.', [':online' => 'https://www.drupal.org/documentation/modules/token', ':project' => 'https://www.drupal.org/project/token']) . '</p>';
@@ -54,6 +55,7 @@ function token_theme() {
       'global_types' => TRUE,
       'click_insert' => TRUE,
       'show_restricted' => FALSE,
+      'show_nested' => FALSE,
       'recursion_limit' => 3,
       'text' => NULL,
       'options' => [],
@@ -397,6 +399,7 @@ function token_form_user_admin_settings_alter(&$form, FormStateInterface $form_s
     '#theme' => 'token_tree_link',
     '#token_types' => array('user'),
     '#show_restricted' => TRUE,
+    '#show_nested' => FALSE,
     '#weight' => 90,
   );
 }

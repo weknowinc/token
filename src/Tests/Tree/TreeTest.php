@@ -39,7 +39,6 @@ class TreeTest extends TokenTestBase {
   public function testAllTokens() {
     $this->drupalGet($this->getTokenTreeUrl(['token_types' => 'all']));
 
-    $this->assertTokenGroup('Array');
     $this->assertTokenGroup('Current date');
     $this->assertTokenGroup('Site information');
 

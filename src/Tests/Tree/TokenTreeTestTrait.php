@@ -42,6 +42,28 @@ trait TokenTreeTestTrait {
   }
 
   /**
+   * Check to see if the specified token group is not present in the token
+   * browser.
+   *
+   * @param string $token_group
+   *   The name of the token group.
+   * @param string $message
+   *   (optional) A message to display with the assertion.
+   * @param string $group
+   *   (optional) The group this message is not in, which is displayed in a
+   *   column in test output.
+   */
+  protected function assertTokenNotGroup($token_group, $message = '', $group = 'Other') {
+    $groups = $this->getTokenGroups();
+
+    if (!$message) {
+      $message = "Token group $token_group not found.";
+    }
+
+    $this->assertFalse(in_array($token_group, $groups), $message, $group);
+  }
+
+  /**
    * Check to see if the specified token is present in the token browser.
    *
    * @param $token

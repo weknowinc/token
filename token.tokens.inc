@@ -329,6 +329,7 @@ function token_token_info() {
     'name' => t('Array'),
     'description' => t('Tokens related to arrays of strings.'),
     'needs-data' => 'array',
+    'nested' => TRUE,
   );
   $info['tokens']['array']['first'] = array(
     'name' => t('First'),

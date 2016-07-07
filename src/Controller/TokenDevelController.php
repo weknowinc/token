@@ -97,6 +97,7 @@ class TokenDevelController extends ControllerBase {
     $build['tokens'] = [
       '#type' => 'token_tree_table',
       '#show_restricted' => FALSE,
+      '#show_nested' => FALSE,
       '#skip_empty_values' => TRUE,
       '#token_tree' => $token_tree,
       '#columns' => ['token', 'value'],
