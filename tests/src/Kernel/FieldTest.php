@@ -30,7 +30,7 @@ class FieldTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'text', 'field', 'filter', 'contact'];
+  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options'];
 
   /**
    * {@inheritdoc}
@@ -62,6 +62,22 @@ class FieldTest extends KernelTestBase {
     ]);
     $field->save();
 
+    // Create a reference field with the same name on user.
+    $field_storage = FieldStorageConfig::create([
+      'field_name' => 'test_field',
+      'entity_type' => 'user',
+      'type' => 'entity_reference',
+    ]);
+    $field_storage->save();
+
+    $field = FieldConfig::create([
+      'field_name' => 'test_field',
+      'entity_type' => 'user',
+      'bundle' => 'user',
+      'label' => 'Test field',
+    ]);
+    $field->save();
+
     $this->testFormat = FilterFormat::create([
       'format' => 'test',
       'weight' => 1,
@@ -70,13 +86,34 @@ class FieldTest extends KernelTestBase {
       ],
     ]);
     $this->testFormat->save();
+
+    // Create a multi-value list_string field.
+    $field_storage = FieldStorageConfig::create([
+      'field_name' => 'test_list',
+      'entity_type' => 'node',
+      'type' => 'list_string',
+      'cardinality' => 2,
+      'settings' => [
+        'allowed_values' => [
+          'key1' => 'value1',
+          'key2' => 'value2',
+        ]
+      ],
+    ]);
+    $field_storage->save();
+
+    $this->field = FieldConfig::create([
+      'field_name' => 'test_list',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+    ])->save();
   }
 
   /**
    * Tests [entity:field_name] tokens.
    */
   public function testEntityFieldTokens() {
-    // Create a node with a value in the text field and test its token.
+    // Create a node with a value in its fields and test its tokens.
     $entity = Node::create([
       'title' => 'Test node title',
       'type' => 'article',
@@ -84,12 +121,41 @@ class FieldTest extends KernelTestBase {
         'value' => 'foo',
         'format' => $this->testFormat->id(),
       ],
+      'test_list' => [
+        'value1',
+        'value2',
+      ],
     ]);
     $entity->save();
-
     $this->assertTokens('node', ['node' => $entity], [
       'test_field' => Markup::create('foo'),
+      'test_field:0' => Markup::create('foo'),
+      'test_field:0:value' => 'foo',
+      'test_field:value' => 'foo',
+      'test_field:0:format' => $this->testFormat->id(),
+      'test_field:format' => $this->testFormat->id(),
+      'test_list:0' => Markup::create('value1'),
+      'test_list:1' => Markup::create('value2'),
+      'test_list:0:value' => Markup::create('value1'),
+      'test_list:value' => Markup::create('value1'),
+      'test_list:1:value' => Markup::create('value2'),
     ]);
+
+    // Verify that no third token was generated for the list_string field.
+    $this->assertNoTokens('node', ['node' => $entity], [
+      'test_list:2',
+      'test_list:2:value',
+    ]);
+
+    // Test the test_list token metadata.
+    $tokenService = \Drupal::service('token');
+    $token_info = $tokenService->getTokenInfo('node', 'test_list');
+    $this->assertEqual($token_info['name'], 'test_list');
+    $this->assertEqual($token_info['module'], 'token');
+    $this->assertEqual($token_info['type'], 'list<node-test_list>');
+    $typeInfo = $tokenService->getTypeInfo('list<node-test_list>');
+    $this->assertEqual($typeInfo['name'], 'List of test_list values');
+    $this->assertEqual($typeInfo['type'], 'list<node-test_list>');
 
     // Create a node without a value in the text field and test its token.
     $entity = Node::create([
@@ -98,7 +164,9 @@ class FieldTest extends KernelTestBase {
     ]);
     $entity->save();
 
-    $this->assertNoTokens('node', ['node' => $entity], ['test_field']);
+    $this->assertNoTokens('node', ['node' => $entity], [
+      'test_field',
+    ]);
   }
 
   /**
@@ -145,6 +213,14 @@ class FieldTest extends KernelTestBase {
     $this->assertEqual($token_info['name'], 'Test field', 'The token info name is correct.');
     $this->assertEqual((string) $token_info['description'], 'Text (formatted) field. Also known as <em class="placeholder">Different test field</em>.', 'When a field is used in several bundles with different labels, this is noted at the token info description.');
     $this->assertEqual($token_info['module'], 'token', 'The token info module is correct.');
+    $this->assertEqual($token_info['type'], 'node-test_field', 'The field property token info type is correct.');
+
+    // Test field property token info.
+    $token_info = $tokenService->getTokenInfo('node-test_field', 'value');
+    $this->assertEqual($token_info['name'], 'Text', 'The field property token info name is correct.');
+    // This particular field property description happens to be empty.
+    $this->assertEqual((string) $token_info['description'], '', 'The field property token info description is correct.');
+    $this->assertEqual($token_info['module'], 'token', 'The field property token info module is correct.');
   }
 
   /**
@@ -220,7 +296,6 @@ class FieldTest extends KernelTestBase {
       'copy' => FALSE,
     ]);
     $entity->save();
-
     $this->assertTokens('contact_message', ['contact_message' => $entity], [
       'uuid' => Markup::create('123'),
       'langcode' => Markup::create('English'),

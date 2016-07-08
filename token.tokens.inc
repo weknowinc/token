@@ -20,6 +20,8 @@ use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\system\Entity\Menu;
 use Drupal\user\UserInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
+use Drupal\Core\TypedData\PrimitiveInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 
 /**
  * Implements hook_token_info_alter().
@@ -1186,6 +1188,7 @@ function field_token_info_alter(&$info) {
 
     $fields = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
     foreach ($fields as $field_name => $field) {
+      /** @var \Drupal\field\FieldStorageConfigInterface $field */
       // Ensure the token type exists.
       if (!isset($info['types'][$token_type])) {
         continue;
@@ -1212,7 +1215,6 @@ function field_token_info_alter(&$info) {
       }
 
       // Generate a description for the token.
-
       $labels = _token_field_label($entity_type_id, $field_name);
       $label = array_shift($labels);
       $params['@type'] = $type_info[$field->getType()]['label'];
@@ -1224,11 +1226,55 @@ function field_token_info_alter(&$info) {
         $description = t('@type field.', $params);
       }
 
+      $cardinality = $field->getCardinality();
+      $cardinality = ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED || $cardinality > 3) ? 3 : $cardinality;
+      $field_token_name = $token_type . '-' . $field_name;
       $info['tokens'][$token_type][$field_name] = array(
         'name' => SafeMarkup::checkPlain($label),
         'description' => $description,
         'module' => 'token',
+        // For multivalue fields the field token is a list type.
+        'type' => $cardinality > 1 ? "list<$field_token_name>" : $field_token_name,
       );
+
+      // Field token type.
+      $info['types'][$field_token_name] = [
+        'name' => SafeMarkup::checkPlain($label),
+        'description' => t('@label tokens.', ['@label' => SafeMarkup::checkPlain($label)]),
+        'needs-data' => $field_token_name,
+        'nested' => TRUE,
+      ];
+      // Field list token type.
+      if ($cardinality > 1) {
+        $info['types']["list<$field_token_name>"] = array(
+          'name' => t('List of @type values', array('@type' => SafeMarkup::checkPlain($label))),
+          'description' => t('Tokens for lists of @type values.', array('@type' => SafeMarkup::checkPlain($label))),
+          'needs-data' => "list<$field_token_name>",
+          'nested' => TRUE,
+        );
+      }
+
+      // Show a different token for each field delta.
+      if ($cardinality > 1) {
+        for ($delta = 0; $delta < $cardinality; $delta++) {
+          $info['tokens']["list<$field_token_name>"][$delta] = [
+            'name' => t('@type type with delta @delta', ['@type' => SafeMarkup::checkPlain($label), '@delta' => $delta]),
+            'module' => 'token',
+            'type' => $field_token_name,
+          ];
+        }
+      }
+
+      // Property tokens.
+      foreach ($field->getPropertyDefinitions() as $property => $property_definition) {
+        if (is_subclass_of($property_definition->getClass(), 'Drupal\Core\TypedData\PrimitiveInterface')) {
+          $info['tokens'][$field_token_name][$property] = [
+            'name' => $property_definition->getLabel(),
+            'description' => $property_definition->getDescription(),
+            'module' => 'token',
+          ];
+        }
+      }
     }
   }
 }
@@ -1269,9 +1315,6 @@ function _token_field_label($entity_type, $field_name) {
 function field_tokens($type, $tokens, array $data = array(), array $options = array(), BubbleableMetadata $bubbleable_metadata) {
   $replacements = array();
   $langcode = isset($options['langcode']) ? $options['langcode'] : NULL;
-
-  $renderer = \Drupal::service('renderer');
-
   // Entity tokens.
   if ($type == 'entity' && !empty($data['entity_type']) && !empty($data['entity']) && !empty($data['token_type'])) {
     // The field API does weird stuff to the entity, so let's clone it.
@@ -1285,46 +1328,100 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
     // inside field_attach_view().
     unset($entity->_field_view_prepared);
 
-    $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')
-      ->load($entity->getEntityTypeId() . '.' . $entity->bundle() . '.token');
+    $view_mode_name = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.token';
+    $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load($view_mode_name);
     $token_view_display = (!empty($view_display) && $view_display->status());
-    /** @var \Drupal\Core\Field\FieldTypePluginManager $fieldTypeManager */
-    $fieldTypeManager = \Drupal::service('plugin.manager.field.field_type');
-
     foreach ($tokens as $name => $original) {
-      // Replace the [entity:field-name] token only if token module added this
-      // token.
-      if ($entity->hasField($name) && _token_module($data['token_type'], $name) == 'token') {
+      // For the [entity:field_name] token.
+      if (strpos($name, ':') === FALSE) {
+        $field_name = $name;
+        $token_name = $name;
+      }
+      // For [entity:field_name:0], [entity:field_name:0:value] and
+      // [entity:field_name:value] tokens.
+      else {
+        list($field_name, $delta) = explode(':', $name, 2);
+        if (!is_numeric($delta)) {
+          unset($delta);
+         }
+        $token_name = $field_name;
+      }
+      if (_token_module($data['token_type'], $token_name) != 'token') {
+        continue;
+      }
 
-        // Do not continue if the field is empty.
-        if ($entity->get($name)->isEmpty()) {
-          continue;
-        }
-        $display_options = 'token';
+      $display_options = 'token';
+      // Do not continue if the field is empty.
+      if ($entity->get($field_name)->isEmpty()) {
+        continue;
+      }
+      // Handle [entity:field_name] and [entity:field_name:0] tokens.
+      if ($field_name === $name || isset($delta)) {
         if (!$token_view_display) {
           // We don't have the token view display and should fall back on
           // default formatters. If the field has specified a specific formatter
           // to be used by default with tokens, use that, otherwise use the
           // default formatter.
-          $field_type_definition = $fieldTypeManager->getDefinition($entity->getFieldDefinition($name)->getType());
-
+          /** @var \Drupal\Core\Field\FieldTypePluginManager $field_type_manager */
+          $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
+          $field_type_definition = $field_type_manager->getDefinition($entity->getFieldDefinition($field_name)->getType());
           $display_options = [
             'type' => !empty($field_type_definition['default_token_formatter']) ? $field_type_definition['default_token_formatter'] : $field_type_definition['default_formatter'],
             'label' => 'hidden',
           ];
         }
 
-        $field_output = $entity->$name->view($display_options);
+        // Render only one delta.
+        if (isset($delta)) {
+          if ($field_delta = $entity->{$field_name}[$delta]) {
+            $field_output = $field_delta->view($display_options);
+          }
+          // If no such delta exists, let's not replace the token.
+          else {
+            continue;
+          }
+        }
+        // Render the whole field (with all deltas).
+        else {
+          $field_output = $entity->$field_name->view($display_options);
+          // If we are displaying all field items we need this #pre_render
+          // callback.
+          $field_output['#pre_render'][] = 'token_pre_render_field_token';
+        }
         $field_output['#token_options'] = $options;
-        $field_output['#pre_render'][] = 'token_pre_render_field_token';
-        $replacements[$original] = $renderer->renderPlain($field_output);
+        $replacements[$original] = \Drupal::service('renderer')->renderPlain($field_output);
+      }
+      // Handle [entity:field_name:value] and [entity:field_name:0:value]
+      // tokens.
+      else if ($field_tokens = \Drupal::token()->findWithPrefix($tokens, $field_name)) {
+        $property_token_data = [
+          'field_property' => TRUE,
+          $data['entity_type'] . '-' . $field_name => $data['entity']->$field_name,
+          'field_name' => $data['entity_type'] . '-' . $field_name,
+        ];
+        $replacements += \Drupal::token()->generate($field_name, $field_tokens, $property_token_data, $options, $bubbleable_metadata);
       }
     }
 
     // Remove the cloned object from memory.
     unset($entity);
   }
-
+  elseif (!empty($data['field_property'])) {
+    foreach ($tokens as $name => $original) {
+      // Handle [entity:field_name:0:value] tokens.
+      if (strpos($name, ':') !== FALSE) {
+        list($delta, $rest) = explode(':', $name, 2);
+        $name = is_numeric($delta) ? $rest : $name;
+      }
+      // [entity:field_name:value] is treated as [entity:field_name:0:value].
+      else {
+        $delta = 0;
+      }
+      if (isset($data[$data['field_name']][$delta]) && isset($data[$data['field_name']][$delta]->$name))  {
+        $replacements[$original] = $data[$data['field_name']][$delta]->$name;
+      }
+    }
+  }
   return $replacements;
 }
 
