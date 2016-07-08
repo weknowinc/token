@@ -8,7 +8,6 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\DiffArray;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
-use Drupal\Core\Utility\Token;
 
 /**
  * Theme a link to a token tree shown as a dialog.
