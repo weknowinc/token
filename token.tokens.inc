@@ -22,6 +22,7 @@ use Drupal\user\UserInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Drupal\Core\TypedData\PrimitiveInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 
 /**
  * Implements hook_token_info_alter().
@@ -65,8 +66,9 @@ function token_token_info_alter(&$info) {
   // Add [token:url] tokens for any URI-able entities.
   $entities = \Drupal::entityTypeManager()->getDefinitions();
   foreach ($entities as $entity => $entity_info) {
-    /* @var \Drupal\Core\Entity\EntityType $entity_info */
-    if (!$entity_info->get('token_type')) {
+    // Do not generate tokens if the entity doesn't define a token type or is
+    // not a content entity.
+    if (!$entity_info->get('token_type') || (!$entity_info instanceof ContentEntityTypeInterface)) {
       continue;
     }
 
