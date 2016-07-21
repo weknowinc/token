@@ -6,6 +6,7 @@ use Drupal\comment\Entity\Comment;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
+use Drupal\Core\Url;
 
 /**
  * Tests comment tokens.
@@ -86,7 +87,7 @@ class CommentTest extends KernelTestBase {
     $comment->save();
 
     // Fix http://example.com/index.php/comment/1 fails 'url:path' test.
-    $comment_path = \Drupal::url('entity.comment.canonical', array('comment' => $comment->id()));
+    $comment_path = Url::fromRoute('entity.comment.canonical', array('comment' => $comment->id()))->toString();
 
     $tokens = array(
       'url' => $comment->urlInfo('canonical', ['fragment' => "comment-{$comment->id()}"])->setAbsolute()->toString(),

@@ -502,7 +502,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'edit-url':
-          $replacements[$original] = \Drupal::url('entity.taxonomy_term.edit_form', ['taxonomy_term' => $term->id()], $url_options);
+          $replacements[$original] = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $term->id()], $url_options)->toString();
           break;
 
         case 'parents':
@@ -550,7 +550,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           $replacements[$original] = $vocabulary->id();
           break;
         case 'edit-url':
-          $replacements[$original] = \Drupal::url('entity.taxonomy_vocabulary.edit_form', ['taxonomy_vocabulary' => $vocabulary->id()], $url_options);
+          $replacements[$original] = Url::fromRoute('entity.taxonomy_vocabulary.edit_form', ['taxonomy_vocabulary' => $vocabulary->id()], $url_options)->toString();
           break;
       }
     }
@@ -1158,7 +1158,7 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
           break;
 
         case 'edit-url':
-          $replacements[$original] = \Drupal::url('entity.menu.edit_form', ['menu' => $menu->id()], $url_options);
+          $replacements[$original] = Url::fromRoute('entity.menu.edit_form', ['menu' => $menu->id()], $url_options)->toString();
           break;
       }
     }

@@ -3,6 +3,7 @@
 namespace Drupal\token\Tests;
 
 use Drupal\node\Entity\Node;
+use Drupal\Core\Url;
 
 /**
  * Tests menu tokens.
@@ -56,13 +57,13 @@ class TokenMenuTest extends TokenTestBase {
       'menu:machine-name' => $menu->id(),
       'menu:description' => 'The <em>Main</em> menu is used on many sites to show the major sections of the site, often in a top navigation bar.',
       'menu:menu-link-count' => '2',
-      'menu:edit-url' => \Drupal::url('entity.menu.edit_form', ['menu' => 'main-menu'], array('absolute' => TRUE)),
-      'url' => \Drupal::url('system.admin_config', [], array('absolute' => TRUE)),
-      'url:absolute' => \Drupal::url('system.admin_config', [], array('absolute' => TRUE)),
-      'url:relative' => \Drupal::url('system.admin_config', [], array('absolute' => FALSE)),
+      'menu:edit-url' => Url::fromRoute('entity.menu.edit_form', ['menu' => 'main-menu'], array('absolute' => TRUE))->toString(),
+      'url' => Url::fromRoute('system.admin_config', [], array('absolute' => TRUE))->toString(),
+      'url:absolute' => Url::fromRoute('system.admin_config', [], array('absolute' => TRUE))->toString(),
+      'url:relative' => Url::fromRoute('system.admin_config', [], array('absolute' => FALSE))->toString(),
       'url:path' => '/admin/config',
       'url:alias' => '/admin/config',
-      'edit-url' => \Drupal::url('entity.menu_link_content.canonical', ['menu_link_content' => $parent_link->id()], array('absolute' => TRUE)),
+      'edit-url' => Url::fromRoute('entity.menu_link_content.canonical', ['menu_link_content' => $parent_link->id()], array('absolute' => TRUE))->toString(),
       'parent' => 'Administration',
       'parent:id' => $root_link->getPluginId(),
       'parent:title' => 'Administration',
