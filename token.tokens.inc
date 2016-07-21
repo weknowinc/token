@@ -5,16 +5,12 @@
  * Token callbacks for the token module.
  */
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Url;
-use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\system\Entity\Menu;
@@ -111,7 +107,7 @@ function token_token_info_alter(&$info) {
     /* @var \Drupal\system\Entity\DateFormat $date_format_type_info */
     if (!isset($info['tokens']['date'][$date_format_type])) {
       $info['tokens']['date'][$date_format_type] = array(
-        'name' => SafeMarkup::checkPlain($date_format_type_info->label()),
+        'name' => Html::escape($date_format_type_info->label()),
         'description' => t("A date in '@type' format. (%date)", array('@type' => $date_format_type, '%date' => format_date(REQUEST_TIME, $date_format_type))),
         'module' => 'token',
       );
@@ -1232,7 +1228,7 @@ function field_token_info_alter(&$info) {
       $cardinality = ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED || $cardinality > 3) ? 3 : $cardinality;
       $field_token_name = $token_type . '-' . $field_name;
       $info['tokens'][$token_type][$field_name] = array(
-        'name' => SafeMarkup::checkPlain($label),
+        'name' => Html::escape($label),
         'description' => $description,
         'module' => 'token',
         // For multivalue fields the field token is a list type.
@@ -1241,16 +1237,16 @@ function field_token_info_alter(&$info) {
 
       // Field token type.
       $info['types'][$field_token_name] = [
-        'name' => SafeMarkup::checkPlain($label),
-        'description' => t('@label tokens.', ['@label' => SafeMarkup::checkPlain($label)]),
+        'name' => Html::escape($label),
+        'description' => t('@label tokens.', ['@label' => Html::escape($label)]),
         'needs-data' => $field_token_name,
         'nested' => TRUE,
       ];
       // Field list token type.
       if ($cardinality > 1) {
         $info['types']["list<$field_token_name>"] = array(
-          'name' => t('List of @type values', array('@type' => SafeMarkup::checkPlain($label))),
-          'description' => t('Tokens for lists of @type values.', array('@type' => SafeMarkup::checkPlain($label))),
+          'name' => t('List of @type values', array('@type' => Html::escape($label))),
+          'description' => t('Tokens for lists of @type values.', array('@type' => Html::escape($label))),
           'needs-data' => "list<$field_token_name>",
           'nested' => TRUE,
         );
@@ -1260,7 +1256,7 @@ function field_token_info_alter(&$info) {
       if ($cardinality > 1) {
         for ($delta = 0; $delta < $cardinality; $delta++) {
           $info['tokens']["list<$field_token_name>"][$delta] = [
-            'name' => t('@type type with delta @delta', ['@type' => SafeMarkup::checkPlain($label), '@delta' => $delta]),
+            'name' => t('@type type with delta @delta', ['@type' => Html::escape($label), '@delta' => $delta]),
             'module' => 'token',
             'type' => $field_token_name,
           ];
