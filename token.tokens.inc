@@ -446,7 +446,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     }
 
     // Chained token relationships.
-    if (!empty($node->tnid) && ($parent_tokens = \Drupal::token()->findWithPrefix($tokens, 'source')) && $source_node = node_load($node->tnid)) {
+    if (($parent_tokens = \Drupal::token()->findWithPrefix($tokens, 'source')) && $source_node = $node->getUntranslated()) {
       $replacements += \Drupal::token()->generate('node', $parent_tokens, array('node' => $source_node), $options, $bubbleable_metadata);
     }
     if (($node_type_tokens = \Drupal::token()->findWithPrefix($tokens, 'content-type')) && $node_type = node_type_load($node->bundle())) {

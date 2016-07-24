@@ -46,7 +46,7 @@ class NodeTest extends KernelTestBase {
   function testNodeTokens() {
     $page = Node::create([
       'type' => 'page',
-      'title' => $this->randomMachineName(),
+      'title' => 'Source Title',
       'revision_log' => $this->randomMachineName(),
       'path' => array('alias' => '/content/source-node')
     ]);
@@ -63,6 +63,7 @@ class NodeTest extends KernelTestBase {
       'content-type:description' => "Use <em>basic pages</em> for your static content, such as an 'About us' page.",
       'content-type:node-count' => 1,
       'content-type:edit-url' => Url::fromRoute('entity.node_type.edit_form', ['node_type' => 'page'], array('absolute' => TRUE))->toString(),
+      'source:title' => 'Source Title',
       // Deprecated tokens.
       'type' => 'page',
       'type-name' => 'Basic page',
@@ -72,7 +73,7 @@ class NodeTest extends KernelTestBase {
 
     $article = Node::create([
       'type' => 'article',
-      'title' => $this->randomMachineName()
+      'title' => 'Source Title',
     ]);
     $article->save();
     $tokens = array(
@@ -87,6 +88,7 @@ class NodeTest extends KernelTestBase {
       'content-type:description' => "Use <em>articles</em> for time-sensitive content like news, press releases or blog posts.",
       'content-type:node-count' => 1,
       'content-type:edit-url' => Url::fromRoute('entity.node_type.edit_form', ['node_type' => 'article'], array('absolute' => TRUE))->toString(),
+      'source:title' => 'Source Title',
       // Deprecated tokens.
       'type' => 'article',
       'type-name' => 'Article',
