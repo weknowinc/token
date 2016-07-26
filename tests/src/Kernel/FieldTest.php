@@ -8,10 +8,14 @@ use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\Core\Render\Markup;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\contact\Entity\Message;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\taxonomy\Tests\TaxonomyTestTrait;
 
 /**
  * Tests field tokens.
@@ -20,17 +24,28 @@ use Drupal\contact\Entity\Message;
  */
 class FieldTest extends KernelTestBase {
 
+  use TaxonomyTestTrait;
+  use EntityReferenceTestTrait;
+
   /**
    * @var \Drupal\filter\FilterFormatInterface
    */
   protected $testFormat;
+
+
+  /**
+   * Vocabulary for testing chained token support.
+   *
+   * @var \Drupal\taxonomy\VocabularyInterface
+   */
+  protected $vocabulary;
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options'];
+  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options', 'taxonomy'];
 
   /**
    * {@inheritdoc}
@@ -40,6 +55,7 @@ class FieldTest extends KernelTestBase {
 
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
+    $this->installEntitySchema('taxonomy_term');
 
     // Create the article content type with a text field.
     $node_type = NodeType::create([
@@ -107,6 +123,39 @@ class FieldTest extends KernelTestBase {
       'entity_type' => 'node',
       'bundle' => 'article',
     ])->save();
+
+    // Add a node reference field.
+    $this->createEntityReferenceField('node', 'article', 'test_reference', 'Test reference', 'node');
+
+    // Add a taxonomy term reference field.
+    $this->vocabulary = $this->createVocabulary();
+    $this->createEntityReferenceField(
+      'node',
+      'article',
+      'test_term_reference',
+      'Test term reference',
+      'taxonomy_term',
+      'default:taxonomy_term',
+      [
+        'target_bundles' => [
+          $this->vocabulary->id() => $this->vocabulary->id(),
+        ],
+      ]
+    );
+
+    // Add a field to terms of the created vocabulary.
+    $storage = FieldStorageConfig::create([
+      'field_name' => 'term_field',
+      'entity_type' => 'taxonomy_term',
+      'type' => 'text',
+    ]);
+    $storage->save();
+    $field = FieldConfig::create([
+      'field_name' => 'term_field',
+      'entity_type' => 'taxonomy_term',
+      'bundle' => $this->vocabulary->id(),
+    ]);
+    $field->save();
   }
 
   /**
@@ -316,4 +365,148 @@ class FieldTest extends KernelTestBase {
     // Verify that node entity type doesn't have a uid token.
     $this->assertNull($tokenService->getTokenInfo('node', 'uid'));
   }
+
+  /*
+   * Tests chaining entity reference tokens.
+   */
+  public function testEntityReferenceTokens() {
+    $reference = Node::create([
+      'title' => 'Test node to reference',
+      'type' => 'article',
+      'test_field' => [
+        'value' => 'foo',
+        'format' => $this->testFormat->id(),
+      ]
+    ]);
+    $reference->save();
+    $term_reference_field_value = $this->randomString();
+    $term_reference = $this->createTerm($this->vocabulary, [
+      'name' => 'Term to reference',
+      'term_field' => [
+        'value' => $term_reference_field_value,
+        'format' => $this->testFormat->id(),
+      ],
+    ]);
+    $entity = Node::create([
+      'title' => 'Test entity reference',
+      'type' => 'article',
+      'test_reference' => ['target_id' => $reference->id()],
+      'test_term_reference' => ['target_id' => $term_reference->id()],
+    ]);
+    $entity->save();
+
+    $this->assertTokens('node', ['node' => $entity], [
+      'test_reference:entity:title' => Markup::create('Test node to reference'),
+      'test_reference:entity:test_field' => Markup::create('foo'),
+      'test_term_reference:entity:term_field' => Html::escape($term_reference_field_value),
+      'test_reference:target_id' => $reference->id(),
+      'test_term_reference:target_id' => $term_reference->id(),
+      'test_term_reference:entity:url:path' => '/' . $term_reference->toUrl('canonical')->getInternalPath(),
+      // Expects the entity's label to be returned for :entity tokens.
+      'test_reference:entity' => $reference->label(),
+      'test_term_reference:entity' => $term_reference->label(),
+    ]);
+
+    // Test some non existent tokens.
+    $this->assertNoTokens('node', ['node' => $entity], [
+      'test_reference:1:title',
+      'test_reference:entity:does_not_exist',
+      'test_reference:does_not:exist',
+      'test_term_reference:does_not_exist',
+      'test_term_reference:does:not:exist',
+      'test_term_reference:does_not_exist:0',
+      'non_existing_field:entity:title',
+    ]);
+
+    /** @var \Drupal\token\Token $token_service */
+    $token_service = \Drupal::service('token');
+
+    $token_info = $token_service->getTokenInfo('node', 'test_reference');
+    $this->assertEquals('Test reference', $token_info['name']);
+    $this->assertEquals('Entity reference field.', (string) $token_info['description']);
+    $this->assertEquals('token', $token_info['module']);
+    $this->assertEquals('node-test_reference', $token_info['type']);
+
+    // Test target_id field property token info.
+    $token_info = $token_service->getTokenInfo('node-test_reference', 'target_id');
+    $this->assertEquals('Content ID', $token_info['name']);
+    $this->assertEquals('token', $token_info['module']);
+    $this->assertEquals('token', $token_info['module']);
+
+    // Test entity field property token info.
+    $token_info = $token_service->getTokenInfo('node-test_reference', 'entity');
+    $this->assertEquals('Content', $token_info['name']);
+    $this->assertEquals('The referenced entity', $token_info['description']);
+    $this->assertEquals('token', $token_info['module']);
+    $this->assertEquals('node', $token_info['type']);
+
+    // Test entity field property token info of the term reference.
+    $token_info = $token_service->getTokenInfo('node-test_term_reference', 'entity');
+    $this->assertEquals('Taxonomy term', $token_info['name']);
+    $this->assertEquals('The referenced entity', $token_info['description']);
+    $this->assertEquals('token', $token_info['module']);
+    $this->assertEquals('term', $token_info['type']);
+
+  }
+
+  /**
+   * Tests support for cardinality > 1 for entity reference tokens.
+   */
+  public function testEntityReferenceTokensCardinality() {
+    /** @var \Drupal\field\FieldStorageConfigInterface $storage */
+    $storage = FieldStorageConfig::load('node.test_term_reference');
+    $storage->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+    $storage->save();
+
+    // Add a few terms.
+    $terms = [];
+    $terms_value = [];
+    foreach (range(1, 3) as $i) {
+      $terms_value[$i] = $this->randomString();
+      $terms[$i] = $this->createTerm($this->vocabulary, [
+        'name' => $this->randomString(),
+        'term_field' => [
+          'value' => $terms_value[$i],
+          'format' => $this->testFormat->id(),
+        ],
+      ]);
+    }
+
+    $entity = Node::create([
+      'title' => 'Test multivalue chained tokens',
+      'type' => 'article',
+      'test_term_reference' => [
+        ['target_id' => $terms[1]->id()],
+        ['target_id' => $terms[2]->id()],
+        ['target_id' => $terms[3]->id()],
+      ],
+    ]);
+    $entity->save();
+
+    $this->assertTokens('node', ['node' => $entity], [
+      'test_term_reference:0:entity:term_field' => Html::escape($terms[1]->term_field->value),
+      'test_term_reference:1:entity:term_field' => Html::escape($terms[2]->term_field->value),
+      'test_term_reference:2:entity:term_field' => Html::escape($terms[3]->term_field->value),
+      'test_term_reference:0:target_id' => $terms[1]->id(),
+      'test_term_reference:1:target_id' => $terms[2]->id(),
+      'test_term_reference:2:target_id' => $terms[3]->id(),
+      // Expects the entity's label to be returned for :entity tokens.
+      'test_term_reference:0:entity' => $terms[1]->label(),
+      'test_term_reference:1:entity' => $terms[2]->label(),
+      'test_term_reference:2:entity' => $terms[3]->label(),
+      // To make sure tokens without an explicit delta can also be replaced in
+      // the same token replacement call.
+      'test_term_reference:entity:term_field' => Html::escape($terms[1]->term_field->value),
+      'test_term_reference:target_id' => $terms[1]->id(),
+    ]);
+
+    // Test some non existent tokens.
+    $this->assertNoTokens('node', ['node' => $entity], [
+      'test_term_reference:3:term_field',
+      'test_term_reference:0:does_not_exist',
+      'test_term_reference:1:does:not:exist',
+      'test_term_reference:1:2:does_not_exist',
+    ]);
+  }
+
 }

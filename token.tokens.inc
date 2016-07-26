@@ -5,11 +5,14 @@
  * Token callbacks for the token module.
  */
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\TypedData\DataReferenceDefinitionInterface;
 use Drupal\Core\Url;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\menu_link_content\MenuLinkContentInterface;
@@ -1272,6 +1275,16 @@ function field_token_info_alter(&$info) {
             'module' => 'token',
           ];
         }
+        elseif (($property_definition instanceof DataReferenceDefinitionInterface) && ($property_definition->getTargetDefinition() instanceof EntityDataDefinitionInterface)) {
+          $referenced_entity_type = $property_definition->getTargetDefinition()->getEntityTypeId();
+          $referenced_token_type = \Drupal::service('token.entity_mapper')->getTokenTypeForEntityType($referenced_entity_type);
+          $info['tokens'][$field_token_name][$property] = [
+            'name' => $property_definition->getLabel(),
+            'description' => $property_definition->getDescription(),
+            'module' => 'token',
+            'type' => $referenced_token_type,
+          ];
+        }
       }
     }
   }
@@ -1341,7 +1354,7 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
         list($field_name, $delta) = explode(':', $name, 2);
         if (!is_numeric($delta)) {
           unset($delta);
-         }
+        }
         $token_name = $field_name;
       }
       if (_token_module($data['token_type'], $token_name) != 'token') {
@@ -1405,18 +1418,50 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
     unset($entity);
   }
   elseif (!empty($data['field_property'])) {
-    foreach ($tokens as $name => $original) {
-      // Handle [entity:field_name:0:value] tokens.
-      if (strpos($name, ':') !== FALSE) {
-        list($delta, $rest) = explode(':', $name, 2);
-        $name = is_numeric($delta) ? $rest : $name;
+    foreach ($tokens as $token => $original) {
+      $filtered_tokens = $tokens;
+      $delta = 0;
+      $parts = explode(':', $token);
+      if (is_numeric($parts[0])) {
+        if (count($parts) > 1) {
+          $delta = $parts[0];
+          $property_name = $parts[1];
+          // Pre-filter the tokens to select those with the correct delta.
+          $filtered_tokens = \Drupal::token()->findWithPrefix($tokens, $delta);
+          // Remove the delta to unify between having and not having one.
+          array_shift($parts);
+        }
+        else {
+          // Token is fieldname:delta, which is invalid.
+          continue;
+        }
       }
-      // [entity:field_name:value] is treated as [entity:field_name:0:value].
       else {
-        $delta = 0;
+        $property_name = $parts[0];
       }
-      if (isset($data[$data['field_name']][$delta]) && isset($data[$data['field_name']][$delta]->$name))  {
-        $replacements[$original] = $data[$data['field_name']][$delta]->$name;
+
+      if (isset($data[$data['field_name']][$delta])) {
+        $field_item = $data[$data['field_name']][$delta];
+      }
+      else {
+        // The field has no such delta, abort replacement.
+        continue;
+      }
+
+      if (isset($field_item->$property_name) && ($field_item->$property_name instanceof FieldableEntityInterface)) {
+        // Entity reference field.
+        $entity = $field_item->$property_name;
+        if (count($parts) > 1) {
+          $field_tokens = \Drupal::token()->findWithPrefix($filtered_tokens, $property_name);
+          $token_type = \Drupal::service('token.entity_mapper')->getTokenTypeForEntityType($entity->getEntityTypeId(), TRUE);
+          $replacements += \Drupal::token()->generate($token_type, $field_tokens, [$token_type => $entity], $options, $bubbleable_metadata);
+        }
+        else {
+          $replacements[$original] = $entity->label();
+        }
+      }
+      else {
+        $replacements[$original] = $field_item->$property_name;
       }
     }
   }
