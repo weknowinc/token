@@ -67,7 +67,7 @@ trait TokenTestTrait {
   }
 
   function saveEntityAlias($entity_type, EntityInterface $entity, $alias, $language = Language::LANGCODE_NOT_SPECIFIED) {
-    $uri = $entity->urlInfo()->toArray();
+    $uri = $entity->toUrl()->toArray();
     return $this->saveAlias($uri['path'], $alias, $language);
   }
 

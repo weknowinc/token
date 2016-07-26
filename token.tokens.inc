@@ -825,7 +825,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
     // [entity:url:*] chained tokens.
     if (($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url')) && _token_module($type, 'url') == 'token') {
-      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $entity->urlInfo()), $options, $bubbleable_metadata);
+      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $entity->toUrl()), $options, $bubbleable_metadata);
     }
 
     // [entity:original:*] chained tokens.
