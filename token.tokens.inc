@@ -1357,7 +1357,9 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
         }
         $token_name = $field_name;
       }
-      if (_token_module($data['token_type'], $token_name) != 'token') {
+      // Ensure the entity has the requested field and that the token for it is
+      // defined by token.module.
+      if (!$entity->hasField($field_name) || _token_module($data['token_type'], $token_name) != 'token') {
         continue;
       }
 

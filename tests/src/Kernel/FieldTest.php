@@ -206,6 +206,22 @@ class FieldTest extends KernelTestBase {
     $this->assertEqual($typeInfo['name'], 'List of test_list values');
     $this->assertEqual($typeInfo['type'], 'list<node-test_list>');
 
+    // Create a node type that does not have test_field field.
+    $node_type = NodeType::create([
+      'type' => 'page',
+    ]);
+    $node_type->save();
+
+    $node_without_test_field = Node::create([
+      'title' => 'Node without test_field',
+      'type' => 'page',
+    ]);
+    $node_without_test_field->save();
+
+    // Ensure that trying to generate tokens for a non-existing field does not
+    // throw an exception.
+    $this->assertNoTokens('node', ['node' => $node_without_test_field], ['test_field']);
+
     // Create a node without a value in the text field and test its token.
     $entity = Node::create([
       'title' => 'Test node title',
