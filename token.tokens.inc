@@ -22,6 +22,7 @@ use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Drupal\Core\TypedData\PrimitiveInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\image\Entity\ImageStyle;
 
 /**
  * Implements hook_token_info_alter().
@@ -381,6 +382,42 @@ function token_token_info() {
     'description' => t('A random hash. The possible hashing algorithms are: @hash-algos.', array('@hash-algos' => implode(', ', hash_algos()))),
     'dynamic' => TRUE,
   );
+
+  // Define image_with_image_style token type.
+  if (\Drupal::moduleHandler()->moduleExists('image')) {
+    $info['types']['image_with_image_style'] = [
+      'name' => t('Image with image style'),
+      'needs-data' => 'image_with_image_style',
+      'module' => 'token',
+      'nested' => TRUE,
+    ];
+
+    // Provide tokens for the ImageStyle attributes.
+    $info['tokens']['image_with_image_style']['mimetype'] = [
+      'name' => t('MIME type'),
+      'description' => t('The MIME type (image/png, image/bmp, etc.) of the image.'),
+    ];
+    $info['tokens']['image_with_image_style']['filesize'] = [
+      'name' => t('File size'),
+      'description' => t('The file size of the image.'),
+    ];
+    $info['tokens']['image_with_image_style']['height'] = [
+      'name' => t('Height'),
+      'description' => t('The height the image, in pixels.'),
+    ];
+    $info['tokens']['image_with_image_style']['width'] = [
+      'name' => t('Width'),
+      'description' => t('The width of the image, in pixels.'),
+    ];
+    $info['tokens']['image_with_image_style']['uri'] = [
+      'name' => t('URI'),
+      'description' => t('The URI to the image.'),
+    ];
+    $info['tokens']['image_with_image_style']['url'] = [
+      'name' => t('URL'),
+      'description' => t('The URL to the image.'),
+    ];
+  }
 
   return $info;
 }
@@ -1286,6 +1323,17 @@ function field_token_info_alter(&$info) {
           ];
         }
       }
+      // Provide image_with_image_style tokens for image fields.
+      if ($field->getType() == 'image') {
+        $image_styles = image_style_options(FALSE);
+        foreach ($image_styles as $style => $description) {
+          $info['tokens'][$field_token_name][$style] = [
+            'name' => $description,
+            'description' => t('Represents the image in the given image style.'),
+            'type' => 'image_with_image_style',
+          ];
+        }
+      }
     }
   }
 }
@@ -1460,6 +1508,51 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
         }
         else {
           $replacements[$original] = $entity->label();
+        }
+      }
+      elseif (($field_item->getFieldDefinition()->getType() == 'image') && ($style = ImageStyle::load($property_name))) {
+        // Handle [node:field_name:image_style:property] tokens and multivalued
+        // [node:field_name:delta:image_style:property] tokens. If the token is
+        // of the form [node:field_name:image_style], provide the URL as a
+        // replacement.
+        $property_name = isset($parts[1]) ? $parts[1] : 'url';
+        $entity = $field_item->entity;
+        $original_uri = $entity->getFileUri();
+
+        // Only generate the image derivative if needed.
+        if ($property_name === 'width' || $property_name === 'height') {
+          $dimensions = [
+            'width' => $field_item->width,
+            'height' => $field_item->height,
+          ];
+          $style->transformDimensions($dimensions, $original_uri);
+          $replacements[$original] = $dimensions[$property_name];
+        }
+        elseif ($property_name === 'uri') {
+          $replacements[$original] = $style->buildUri($original_uri);
+        }
+        elseif ($property_name === 'url') {
+          $replacements[$original] = $style->buildUrl($original_uri);
+        }
+        else {
+          // Generate the image derivative, if it doesn't already exist.
+          $derivative_uri = $style->buildUri($original_uri);
+          $derivative_exists = TRUE;
+          if (!file_exists($derivative_uri)) {
+            $derivative_exists = $style->createDerivative($original_uri, $derivative_uri);
+          }
+          if ($derivative_exists) {
+            $image = \Drupal::service('image.factory')->get($derivative_uri);
+            // Provide the replacement.
+            switch ($property_name) {
+              case 'mimetype':
+                $replacements[$original] = $image->getMimeType();
+                break;
+              case 'filesize' :
+                $replacements[$original] = $image->getFileSize();
+                break;
+            }
+          }
         }
       }
       else {
