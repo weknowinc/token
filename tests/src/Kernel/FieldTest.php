@@ -8,7 +8,6 @@ use Drupal\Core\Entity\Entity\EntityViewMode;
 use Drupal\Core\Render\Markup;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
-use Drupal\field\Tests\EntityReference\EntityReferenceTestTrait;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
@@ -16,6 +15,7 @@ use Drupal\contact\Entity\Message;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\taxonomy\Tests\TaxonomyTestTrait;
+use Drupal\language\Entity\ConfigurableLanguage;
 
 /**
  * Tests field tokens.
@@ -25,7 +25,6 @@ use Drupal\taxonomy\Tests\TaxonomyTestTrait;
 class FieldTest extends KernelTestBase {
 
   use TaxonomyTestTrait;
-  use EntityReferenceTestTrait;
 
   /**
    * @var \Drupal\filter\FilterFormatInterface
@@ -45,7 +44,7 @@ class FieldTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options', 'taxonomy'];
+  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options', 'taxonomy', 'language'];
 
   /**
    * {@inheritdoc}
@@ -124,24 +123,49 @@ class FieldTest extends KernelTestBase {
       'bundle' => 'article',
     ])->save();
 
-    // Add a node reference field.
-    $this->createEntityReferenceField('node', 'article', 'test_reference', 'Test reference', 'node');
+    // Add an untranslatable node reference field.
+    FieldStorageConfig::create([
+      'field_name' => 'test_reference',
+      'type' => 'entity_reference',
+      'entity_type' => 'node',
+      'settings' => [
+        'target_type' => 'node',
+      ],
+      'translatable' => FALSE,
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'test_reference',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+      'label' => 'Test reference',
+    ])->save();
 
-    // Add a taxonomy term reference field.
+    // Add an untranslatable taxonomy term reference field.
     $this->vocabulary = $this->createVocabulary();
-    $this->createEntityReferenceField(
-      'node',
-      'article',
-      'test_term_reference',
-      'Test term reference',
-      'taxonomy_term',
-      'default:taxonomy_term',
-      [
-        'target_bundles' => [
-          $this->vocabulary->id() => $this->vocabulary->id(),
+
+    FieldStorageConfig::create([
+      'field_name' => 'test_term_reference',
+      'type' => 'entity_reference',
+      'entity_type' => 'node',
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+      ],
+      'translatable' => FALSE,
+    ])->save();
+    FieldConfig::create([
+      'field_name' => 'test_term_reference',
+      'entity_type' => 'node',
+      'bundle' => 'article',
+      'label' => 'Test term reference',
+      'settings' => [
+        'handler' => 'default:taxonomy_term',
+        'handler_settings' => [
+          'target_bundles' => [
+            $this->vocabulary->id() => $this->vocabulary->id(),
+          ],
         ],
-      ]
-    );
+      ],
+    ])->save();
 
     // Add a field to terms of the created vocabulary.
     $storage = FieldStorageConfig::create([
@@ -156,6 +180,13 @@ class FieldTest extends KernelTestBase {
       'bundle' => $this->vocabulary->id(),
     ]);
     $field->save();
+
+    // Add a second language.
+    $language = ConfigurableLanguage::create([
+      'id' => 'de',
+      'label' => 'German',
+    ]);
+    $language->save();
   }
 
   /**
@@ -523,6 +554,86 @@ class FieldTest extends KernelTestBase {
       'test_term_reference:1:does:not:exist',
       'test_term_reference:1:2:does_not_exist',
     ]);
+  }
+
+  /**
+   * Test tokens for multilingual fields and entities.
+   */
+  public function testMultilingualFields() {
+    // Create an english term and add a german translation for it.
+    $term = $this->createTerm($this->vocabulary, [
+      'name' => 'english-test-term',
+      'langcode' => 'en',
+      'term_field' => [
+        'value' => 'english-term-field-value',
+        'format' => $this->testFormat->id(),
+      ],
+    ]);
+    $term->addTranslation('de', [
+      'name' => 'german-test-term',
+      'term_field' => [
+        'value' => 'german-term-field-value',
+        'format' => $this->testFormat->id(),
+      ],
+    ])->save();
+    $german_term = $term->getTranslation('de');
+
+    // Create an english node, add a german translation for it and add the
+    // english term to the english node's entity reference field and the
+    // german term to the german's entity reference field.
+    $node = Node::create([
+      'title' => 'english-node-title',
+      'type' => 'article',
+      'test_term_reference' => [
+        'target_id' => $term->id(),
+      ],
+      'test_field' => [
+        'value' => 'test-english-field',
+        'format' => $this->testFormat->id(),
+      ],
+    ]);
+    $node->addTranslation('de', [
+      'title' => 'german-node-title',
+      'test_term_reference' => [
+        'target_id' => $german_term->id(),
+      ],
+      'test_field' => [
+        'value' => 'test-german-field',
+        'format' => $this->testFormat->id(),
+      ],
+    ])->save();
+
+    // Verify the :title token of the english node and the :name token of the
+    // english term it refers to. Also verify the value of the term's field.
+    $this->assertTokens('node', ['node' => $node], [
+      'title' => 'english-node-title',
+      'test_term_reference:entity:name' => 'english-test-term',
+      'test_term_reference:entity:term_field:value' => 'english-term-field-value',
+      'test_term_reference:entity:term_field' => 'english-term-field-value',
+      'test_field' => 'test-english-field',
+      'test_field:value' => 'test-english-field',
+    ]);
+
+    // Same test for the german node and its german term.
+    $german_node = $node->getTranslation('de');
+    $this->assertTokens('node', ['node' => $german_node], [
+      'title' => 'german-node-title',
+      'test_term_reference:entity:name' => 'german-test-term',
+      'test_term_reference:entity:term_field:value' => 'german-term-field-value',
+      'test_term_reference:entity:term_field' => 'german-term-field-value',
+      'test_field' => 'test-german-field',
+      'test_field:value' => 'test-german-field',
+    ]);
+
+    // If the langcode is specified, it should have priority over the node's
+    // active language.
+    $tokens = [
+      'test_field' => 'test-german-field',
+      'test_field:value' => 'test-german-field',
+      'test_term_reference:entity:term_field' => 'german-term-field-value',
+      'test_term_reference:entity:term_field:value' => 'german-term-field-value',
+    ];
+    $this->assertTokens('node', ['node' => $node], $tokens, ['langcode' => 'de']);
   }
 
 }

@@ -1383,6 +1383,13 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
       return $replacements;
     }
 
+    if (!isset($options['langcode'])) {
+      // Set the active language in $options, so that it is passed along.
+      $langcode = $options['langcode'] = $entity->language()->getId();
+    }
+    // Obtain the entity with the correct language.
+    $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
+
     // Reset the prepared view flag in case token generation is called from
     // inside field_attach_view().
     unset($entity->_field_view_prepared);
@@ -1457,7 +1464,7 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
       else if ($field_tokens = \Drupal::token()->findWithPrefix($tokens, $field_name)) {
         $property_token_data = [
           'field_property' => TRUE,
-          $data['entity_type'] . '-' . $field_name => $data['entity']->$field_name,
+          $data['entity_type'] . '-' . $field_name => $entity->$field_name,
           'field_name' => $data['entity_type'] . '-' . $field_name,
         ];
         $replacements += \Drupal::token()->generate($field_name, $field_tokens, $property_token_data, $options, $bubbleable_metadata);
@@ -1501,6 +1508,9 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
       if (isset($field_item->$property_name) && ($field_item->$property_name instanceof FieldableEntityInterface)) {
         // Entity reference field.
         $entity = $field_item->$property_name;
+        // Obtain the referenced entity with the correct language.
+        $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
+
         if (count($parts) > 1) {
           $field_tokens = \Drupal::token()->findWithPrefix($filtered_tokens, $property_name);
           $token_type = \Drupal::service('token.entity_mapper')->getTokenTypeForEntityType($entity->getEntityTypeId(), TRUE);
