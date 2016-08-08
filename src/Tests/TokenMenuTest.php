@@ -4,6 +4,9 @@ namespace Drupal\token\Tests;
 
 use Drupal\node\Entity\Node;
 use Drupal\Core\Url;
+use Drupal\node\Entity\NodeType;
+use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\Core\Language\LanguageInterface;
 
 /**
  * Tests menu tokens.
@@ -17,7 +20,14 @@ class TokenMenuTest extends TokenTestBase {
    *
    * @var array
    */
-  public static $modules = ['menu_ui', 'node'];
+  public static $modules = [
+    'menu_ui',
+    'node',
+    'block',
+    'language',
+    'block_content',
+    'content_translation',
+  ];
 
   function testMenuTokens() {
     // Make sure we have a body field on the node type.
@@ -227,6 +237,86 @@ class TokenMenuTest extends TokenTestBase {
       ->range(0, 1);
     $result = $query->execute();
     $this->assertTrue($result);
+  }
+
+  /**
+   * Tests that the module doesn't affect integrity of the menu, when
+   * translating them and that menu links tokens are correct.
+   */
+  function testMultilingualMenu() {
+    // Place the menu block.
+    $this->drupalPlaceBlock('system_menu_block:main');
+
+    // Add a second language.
+    $language = ConfigurableLanguage::create([
+      'id' => 'de',
+      'label' => 'German',
+    ]);
+    $language->save();
+
+    // Create the article content type.
+    $node_type = NodeType::create([
+      'type' => 'article',
+    ]);
+    $node_type->save();
+
+    $permissions = array(
+      'access administration pages',
+      'administer content translation',
+      'administer content types',
+      'administer languages',
+      'create content translations',
+      'create article content',
+      'edit any article content',
+      'translate any entity',
+      'administer menu',
+    );
+    $this->drupalLogin($this->drupalCreateUser($permissions));
+
+    // Enable translation for articles and menu links.
+    $this->drupalGet('admin/config/regional/content-language');
+    $edit = array(
+      'entity_types[node]' => TRUE,
+      'entity_types[menu_link_content]' => TRUE,
+      'settings[node][article][translatable]' => TRUE,
+      'settings[node][article][fields][title]' => TRUE,
+      'settings[menu_link_content][menu_link_content][translatable]' => TRUE,
+    );
+    $this->drupalPostForm(NULL, $edit, t('Save configuration'));
+    $this->assertText('Settings successfully updated.');
+
+    // Create an english node with an english menu.
+    $this->drupalGet('/node/add/article');
+    $edit = [
+      'title[0][value]' => 'English test node with menu',
+      'menu[enabled]' => TRUE,
+      'menu[title]' => 'English menu title',
+    ];
+    $this->drupalPostForm('/node/add/article', $edit, t('Save'));
+    $this->assertText('English test node with menu has been created.');
+
+    // Add a german translation.
+    $this->drupalGet('node/1/translations');
+    $this->clickLink('Add');
+    $edit = [
+      'title[0][value]' => 'German test node with menu',
+      'menu[enabled]' => TRUE,
+      'menu[title]' => 'German menu title',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save (this translation)'));
+    $this->assertText('German test node with menu has been updated.');
+
+    // Verify that the menu links are correct.
+    $this->drupalGet('node/1');
+    $this->assertLink('English menu title');
+    $this->drupalGet('de/node/1');
+    $this->assertLink('German menu title');
+
+    // Verify that tokens are correct.
+    $node = Node::load(1);
+    $this->assertTokens('node', ['node' => $node->getTranslation(LanguageInterface::LANGCODE_DEFAULT)], ['menu-link' => 'English menu title']);
+    // @todo Core doesn't provide any way to enforce a langcode for menu links.
+    // $this->assertTokens('node', ['node' => $node->getTranslation('de')], ['menu-link' => 'German menu title']);
   }
 
 }

@@ -709,6 +709,16 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
       if ($entity_id = $form_state->getValue(['menu', 'entity_id'])) {
         // Use the existing menu_link_content entity.
         $entity = MenuLinkContent::load($entity_id);
+        // If the loaded MenuLinkContent doesn't have a translation for the
+        // Node's active langcode, create a new translation.
+        if ($entity->isTranslatable()) {
+          if (!$entity->hasTranslation($node->language()->getId())) {
+            $entity = $entity->addTranslation($node->language()->getId(), $entity->toArray());
+          }
+          else {
+            $entity = $entity->getTranslation($node->language()->getId());
+          }
+        }
       }
       else {
         if ($node->isNew()) {
