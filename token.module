@@ -738,7 +738,6 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
           ));
         }
       }
-      $entity->enabled->value = 1;
       $entity->title->value = trim($values['title']);
       $entity->description->value = trim($values['description']);
       $entity->menu_name->value = $values['menu_name'];

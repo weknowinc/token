@@ -39,6 +39,10 @@ class TokenMenuTest extends TokenTestBase {
       'description' => 'The <em>Main</em> menu is used on many sites to show the major sections of the site, often in a top navigation bar.',
     ));
     $menu->save();
+
+    // Place the menu block.
+    $this->drupalPlaceBlock('system_menu_block:main-menu');
+
     // Add a root link.
     /** @var \Drupal\menu_link_content\Plugin\Menu\MenuLinkContent $root_link */
     $root_link = entity_create('menu_link_content', array(
@@ -161,6 +165,14 @@ class TokenMenuTest extends TokenTestBase {
     ], t('Save and publish'));
     $node = $this->drupalGetNodeByTitle('Node menu title test');
     $this->assertEqual('This is a Test preview token to the menu link title', $node->body->value);
+
+    // Disable the menu link, save the node and verify that the menu link is
+    // no longer displayed.
+    $link = menu_ui_get_menu_link_defaults($node);
+    $this->drupalPostForm('admin/structure/menu/manage/main-menu', ['links[menu_plugin_id:' . $link['id'] . '][enabled]' => FALSE], t('Save'));
+    $this->assertText('Menu Main menu has been updated.');
+    $this->drupalPostForm('node/' . $node->id() . '/edit', [], t('Save and keep published'));
+    $this->assertNoLink('Test preview');
 
     // Now test a parent link and token.
     $this->drupalGet('node/add/page');
