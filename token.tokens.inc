@@ -1376,9 +1376,8 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
   $langcode = isset($options['langcode']) ? $options['langcode'] : NULL;
   // Entity tokens.
   if ($type == 'entity' && !empty($data['entity_type']) && !empty($data['entity']) && !empty($data['token_type'])) {
-    // The field API does weird stuff to the entity, so let's clone it.
     /* @var \Drupal\Core\Entity\ContentEntityInterface $entity */
-    $entity = clone $data['entity'];
+    $entity = $data['entity'];
     if (!($entity instanceof ContentEntityInterface)) {
       return $replacements;
     }
@@ -1389,10 +1388,6 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
     }
     // Obtain the entity with the correct language.
     $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
-
-    // Reset the prepared view flag in case token generation is called from
-    // inside field_attach_view().
-    unset($entity->_field_view_prepared);
 
     $view_mode_name = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.token';
     $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load($view_mode_name);
