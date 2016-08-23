@@ -14,6 +14,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -761,4 +762,11 @@ function token_node_insert(NodeInterface $node) {
     $menu_link->link = 'entity:node/' .  $node->id();
     $menu_link->save();
   }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave() for menu_link_content.
+ */
+function token_menu_link_content_presave(MenuLinkContentInterface $menu_link_content) {
+  drupal_static_reset('token_menu_link_load_all_parents');
 }
