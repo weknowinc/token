@@ -1252,6 +1252,11 @@ function field_token_info_alter(&$info) {
         continue;
       }
 
+      // Do not define the token type if the field has no properties.
+      if (!$field->getPropertyDefinitions()) {
+        continue;
+      }
+
       // Generate a description for the token.
       $labels = _token_field_label($entity_type_id, $field_name);
       $label = array_shift($labels);
