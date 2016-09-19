@@ -738,7 +738,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           $request = \Drupal::request();
           $route = $request->attributes->get(RouteObjectInterface::ROUTE_OBJECT);
           $title = \Drupal::service('title_resolver')->getTitle($request, $route);
-          $replacements[$original] = $title;
+          $replacements[$original] = token_render_array_value($title);
           break;
         case 'url':
           $replacements[$original] = Url::fromRoute('<current>', [], $url_options)->toString();
