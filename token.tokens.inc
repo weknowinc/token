@@ -542,7 +542,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           break;
 
         case 'parents':
-          if ($parents = token_taxonomy_term_load_all_parents($term->id())) {
+          if ($parents = token_taxonomy_term_load_all_parents($term->id(), $langcode)) {
             $replacements[$original] = token_render_array($parents, $options);
           }
           break;
@@ -563,7 +563,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     }
     // [term:parents:*] chained tokens.
     if ($parents_tokens = \Drupal::token()->findWithPrefix($tokens, 'parents')) {
-      if ($parents = token_taxonomy_term_load_all_parents($term->id())) {
+      if ($parents = token_taxonomy_term_load_all_parents($term->id(), $langcode)) {
         $replacements += \Drupal::token()->generate('array', $parents_tokens, array('array' => $parents), $options, $bubbleable_metadata);
       }
     }

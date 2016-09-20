@@ -629,15 +629,26 @@ function token_menu_link_translated_title(MenuLinkInterface $menu_link, $langcod
   return $menu_link->getTitle();
 }
 
-function token_taxonomy_term_load_all_parents($tid) {
+/**
+ * Loads all the parents of the term in the specified language.
+ *
+ * @param int $tid
+ *   The term id.
+ * @param string $langcode
+ *   The language code.
+ *
+ * @return string[]
+ *   The term parents collection.
+ */
+function token_taxonomy_term_load_all_parents($tid, $langcode) {
   $cache = &drupal_static(__FUNCTION__, array());
 
   if (!is_numeric($tid)) {
     return array();
   }
 
-  if (!isset($cache[$tid])) {
-    $cache[$tid] = array();
+  if (!isset($cache[$langcode][$tid])) {
+    $cache[$langcode][$tid] = array();
     /** @var \Drupal\taxonomy\TermStorageInterface $term_storage */
     $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
     $parents = $term_storage->loadAllParents($tid);
@@ -645,11 +656,12 @@ function token_taxonomy_term_load_all_parents($tid) {
     array_shift($parents);
     $parents = array_reverse($parents);
     foreach ($parents as $term) {
-      $cache[$tid][$term->id()] = $term->label();
+      $translation = \Drupal::service('entity.repository')->getTranslationFromContext($term, $langcode);
+      $cache[$langcode][$tid][$term->id()] = $translation->label();
     }
   }
 
-  return $cache[$tid];
+  return $cache[$langcode][$tid];
 }
 
 function token_element_children(&$elements, $sort = FALSE) {
