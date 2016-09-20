@@ -427,14 +427,14 @@ function token_token_info() {
  */
 function token_tokens($type, array $tokens, array $data = array(), array $options = array(), BubbleableMetadata $bubbleable_metadata) {
   $replacements = array();
-
+  $language_manager = \Drupal::languageManager();
   $url_options = array('absolute' => TRUE);
   if (isset($options['langcode'])) {
-    $url_options['language'] = \Drupal::languageManager()->getLanguage($options['langcode']);
+    $url_options['language'] = $language_manager->getLanguage($options['langcode']);
     $langcode = $options['langcode'];
   }
   else {
-    $langcode = NULL;
+    $langcode = $language_manager->getCurrentLanguage()->getId();
   }
 
   // Date tokens.
@@ -683,7 +683,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           $replacements[$original] = $link->getPluginId();
           break;
         case 'title':
-          $replacements[$original] = $link->getTitle();
+          $replacements[$original] = token_menu_link_translated_title($link, $langcode);
           break;
         case 'url':
           $replacements[$original] = $link->getUrlObject()->setAbsolute()->toString();
@@ -692,18 +692,18 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
           /** @var \Drupal\Core\Menu\MenuLinkInterface $parent */
           if ($link->getParent() && $parent = $menu_link_manager->createInstance($link->getParent())) {
-            $replacements[$original] = $parent->getTitle();
+            $replacements[$original] = token_menu_link_translated_title($parent, $langcode);
           }
           break;
         case 'parents':
-          if ($parents = token_menu_link_load_all_parents($link->getPluginId())) {
+          if ($parents = token_menu_link_load_all_parents($link->getPluginId(), $langcode)) {
             $replacements[$original] = token_render_array($parents, $options);
           }
           break;
         case 'root';
-          if ($link->getParent() && $parent_ids = array_keys(token_menu_link_load_all_parents($link->getPluginId()))) {
+          if ($link->getParent() && $parent_ids = array_keys(token_menu_link_load_all_parents($link->getPluginId(), $langcode))) {
             $root = $menu_link_manager->createInstance(array_shift($parent_ids));
-            $replacements[$original] = $root->getTitle();
+            $replacements[$original] = token_menu_link_translated_title($root, $langcode);
           }
           break;
       }
@@ -716,11 +716,11 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     }
     // [menu-link:parents:*] chained tokens.
     if ($parents_tokens = \Drupal::token()->findWithPrefix($tokens, 'parents')) {
-      if ($parents = token_menu_link_load_all_parents($link->getPluginId())) {
+      if ($parents = token_menu_link_load_all_parents($link->getPluginId(), $langcode)) {
         $replacements += \Drupal::token()->generate('array', $parents_tokens, array('array' => $parents), $options, $bubbleable_metadata);
       }
     }
-    if (($root_tokens = \Drupal::token()->findWithPrefix($tokens, 'root')) && $link->getParent() && $parent_ids = array_keys(token_menu_link_load_all_parents($link->getPluginId()))) {
+    if (($root_tokens = \Drupal::token()->findWithPrefix($tokens, 'root')) && $link->getParent() && $parent_ids = array_keys(token_menu_link_load_all_parents($link->getPluginId(), $langcode))) {
       $root = $menu_link_manager->createInstance(array_shift($parent_ids));
       $replacements += \Drupal::token()->generate('menu-link', $root_tokens, array('menu-link' => $root), $options, $bubbleable_metadata);
     }
@@ -1115,10 +1115,10 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
             $replacements[$original] = $menu_link->getTitle();
           }
           else {
-            $url = $node->urlInfo();
+            $url = $node->toUrl();
             if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
               $link = reset($links);
-              $replacements[$original] = $link->getTitle();
+              $replacements[$original] = token_menu_link_translated_title($link, $langcode);
             }
           }
           break;
