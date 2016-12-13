@@ -86,9 +86,16 @@ function token_block_view_alter(&$build, BlockPluginInterface $block) {
  * Implements hook_form_FORM_ID_alter().
  */
 function token_form_block_form_alter(&$form, FormStateInterface $form_state) {
-  $form['settings']['label']['#description'] = t('This field supports tokens.');
+  $token_tree = [
+    '#theme' => 'token_tree_link',
+    '#token_types' => [],
+  ];
+  $rendered_token_tree = \Drupal::service('renderer')->render($token_tree);
+  $form['settings']['label']['#description'] =
+    t('This field supports tokens. @browse_tokens_link', ['@browse_tokens_link' => $rendered_token_tree])
+  ;
   $form['settings']['label']['#element_validate'][] = 'token_element_validate';
-  $form['settings']['label'] += array('#token_types' => array());
+  $form['settings']['label'] += ['#token_types' => []];
 }
 
 /**
