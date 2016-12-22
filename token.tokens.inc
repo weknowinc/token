@@ -1339,6 +1339,20 @@ function field_token_info_alter(&$info) {
           ];
         }
       }
+      // Provide format token for datetime fields.
+      if ($field->getType() == 'datetime') {
+        $info['tokens'][$field_token_name]['date'] = $info['tokens'][$field_token_name]['value'];
+        $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
+        $info['tokens'][$field_token_name]['date']['type'] = 'date';
+      }
+      if ($field->getType() == 'daterange') {
+        $info['tokens'][$field_token_name]['start_date'] = $info['tokens'][$field_token_name]['value'];
+        $info['tokens'][$field_token_name]['start_date']['name'] .= ' ' . t('format');
+        $info['tokens'][$field_token_name]['start_date']['type'] = 'date';
+        $info['tokens'][$field_token_name]['end_date'] = $info['tokens'][$field_token_name]['end_value'];
+        $info['tokens'][$field_token_name]['end_date']['name'] .= ' ' . t('format');
+        $info['tokens'][$field_token_name]['end_date']['type'] = 'date';
+      }
     }
   }
 }
@@ -1563,6 +1577,16 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
                 break;
             }
           }
+        }
+      }
+      elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange']) && in_array($property_name, ['date', 'start_date', 'end_date'])) {
+        $datetime = $field_item->$property_name->getTimestamp();
+        if($property_name == $token) {
+          $replacements[$original] = $datetime;
+        }
+        else {
+          $field_tokens = \Drupal::token()->findWithPrefix($tokens, $property_name);
+          $replacements += \Drupal::token()->generate('date', $field_tokens, ['date' => $datetime], $options, $bubbleable_metadata);
         }
       }
       else {
