@@ -10,6 +10,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Menu\MenuLinkInterface;
+use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -79,7 +80,9 @@ function token_block_view_alter(&$build, BlockPluginInterface $block) {
     // The label is automatically escaped, avoid escaping it twice.
     // @todo https://www.drupal.org/node/2580723 will add a method or option
     //   to the token API to do this, use that when available.
-    $build['#configuration']['label'] = PlainTextOutput::renderFromHtml(\Drupal::token()->replace($label, array()));
+    $bubbleable_metadata = BubbleableMetadata::createFromRenderArray($build);
+    $build['#configuration']['label'] = PlainTextOutput::renderFromHtml(\Drupal::token()->replace($label, [], [], $bubbleable_metadata));
+    $bubbleable_metadata->applyTo($build);
   }
 }
 
