@@ -372,7 +372,7 @@ function token_token_info() {
   // Random tokens.
   $info['types']['random'] = array(
     'name' => t('Random'),
-    'description' => ('Tokens related to random data.'),
+    'description' => t('Tokens related to random data.'),
   );
   $info['tokens']['random']['number'] = array(
     'name' => t('Number'),
