@@ -17,6 +17,7 @@ use Drupal\Core\Url;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 use Drupal\system\Entity\Menu;
 use Drupal\user\UserInterface;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
@@ -1184,7 +1185,7 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
           else {
             $url = $node->toUrl();
             if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
-              $link = reset($links);
+              $link = _token_menu_link_best_match($node, $links);
               $replacements[$original] = token_menu_link_translated_title($link, $langcode);
             }
           }
@@ -1200,7 +1201,7 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
         else {
           $url = $node->urlInfo();
           if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
-            $link = reset($links);
+            $link = _token_menu_link_best_match($node, $links);
             $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $link), $options, $bubbleable_metadata);
           }
         }
@@ -1268,6 +1269,36 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
   }
 
   return $replacements;
+}
+
+/**
+ * Returns a best matched link for a given node.
+ *
+ * If the url exists in multiple menus, default to the one set on the node
+ * itself.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node to look up the default menu settings from.
+ * @param array $links
+ *   An array of instances keyed by plugin ID.
+ *
+ * @return \Drupal\Core\Menu\MenuLinkInterface
+ *   A Link instance.
+ */
+function _token_menu_link_best_match(NodeInterface $node, array $links) {
+  // Get the menu ui defaults so we can determine what menu was
+  // selected for this node. This ensures that if the node was added
+  // to the menu via the node UI, we use that as a default. If it
+  // was not added via the node UI then grab the first in the
+  // retrieved array.
+  $defaults = menu_ui_get_menu_link_defaults($node);
+  if (isset($defaults['id']) && isset($links[$defaults['id']])) {
+    $link = $links[$defaults['id']];
+  }
+  else {
+    $link = reset($links);
+  }
+  return $link;
 }
 
 /**
