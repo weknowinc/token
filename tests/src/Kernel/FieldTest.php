@@ -16,8 +16,8 @@ use Drupal\node\Entity\NodeType;
 use Drupal\contact\Entity\Message;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\taxonomy\Tests\TaxonomyTestTrait;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\Tests\taxonomy\Functional\TaxonomyTestTrait;
 
 /**
  * Tests field tokens.
