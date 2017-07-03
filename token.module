@@ -340,18 +340,20 @@ function token_form_field_config_edit_form_alter(&$form, FormStateInterface $for
  * adds the token tree for a better token UI and selection.
  */
 function token_form_action_form_alter(&$form, $form_state) {
-  switch ($form['plugin']['#value']) {
-    case 'action_message_action':
-    case 'action_send_email_action':
-    case 'action_goto_action':
-      $form['token_tree'] = [
-        '#theme' => 'token_tree_link',
-        '#token_types' => 'all',
-        '#weight' => 100,
-      ];
-      $form['actions']['#weight'] = 101;
-      // @todo Add token validation to the action fields that can use tokens.
-      break;
+  if (isset($form['plugin'])) {
+    switch ($form['plugin']['#value']) {
+      case 'action_message_action':
+      case 'action_send_email_action':
+      case 'action_goto_action':
+        $form['token_tree'] = [
+          '#theme' => 'token_tree_link',
+          '#token_types' => 'all',
+          '#weight' => 100,
+        ];
+        $form['actions']['#weight'] = 101;
+        // @todo Add token validation to the action fields that can use tokens.
+        break;
+    }
   }
 }
 
