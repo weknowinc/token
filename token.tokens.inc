@@ -1318,17 +1318,13 @@ function field_token_info_alter(&$info) {
 
     // Make sure a token type exists for this entity.
     $token_type = \Drupal::service('token.entity_mapper')->getTokenTypeForEntityType($entity_type_id);
-    if (empty($token_type)) {
+    if (empty($token_type) || !isset($info['types'][$token_type])) {
       continue;
     }
 
     $fields = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
     foreach ($fields as $field_name => $field) {
       /** @var \Drupal\field\FieldStorageConfigInterface $field */
-      // Ensure the token type exists.
-      if (!isset($info['types'][$token_type])) {
-        continue;
-      }
 
       // Ensure the token implements FieldStorageConfigInterface or is defined
       // in token module.
