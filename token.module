@@ -677,11 +677,11 @@ function token_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
         'label' => 'hidden',
-        'type' => 'hidden',
+        'region' => 'hidden',
       ))
       ->setComputed(TRUE)
       ->setDisplayOptions('form', array(
-        'type' => 'hidden',
+        'region' => 'hidden',
       ));
 
     return $fields;
