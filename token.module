@@ -214,7 +214,7 @@ function token_entity_type_alter(array &$entity_types) {
  * Adds missing token support for core modules.
  */
 function token_module_implements_alter(&$implementations, $hook) {
-  module_load_include('inc', 'token', 'token.tokens');
+  \Drupal::moduleHandler()->loadInclude('token', 'inc', 'token.tokens');
 
   if ($hook == 'tokens' || $hook == 'token_info' || $hook == 'token_info_alter' || $hook == 'tokens_alter') {
     foreach (_token_core_supported_modules() as $module) {
