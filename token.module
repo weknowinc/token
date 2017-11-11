@@ -75,14 +75,16 @@ function token_theme() {
  * Implements hook_block_view_alter().
  */
 function token_block_view_alter(&$build, BlockPluginInterface $block) {
-  $label = $build['#configuration']['label'];
-  if ($label != '<none>') {
-    // The label is automatically escaped, avoid escaping it twice.
-    // @todo https://www.drupal.org/node/2580723 will add a method or option
-    //   to the token API to do this, use that when available.
-    $bubbleable_metadata = BubbleableMetadata::createFromRenderArray($build);
-    $build['#configuration']['label'] = PlainTextOutput::renderFromHtml(\Drupal::token()->replace($label, [], [], $bubbleable_metadata));
-    $bubbleable_metadata->applyTo($build);
+  if (isset($build['#configuration'])) {
+    $label = $build['#configuration']['label'];
+    if ($label != '<none>') {
+      // The label is automatically escaped, avoid escaping it twice.
+      // @todo https://www.drupal.org/node/2580723 will add a method or option
+      //   to the token API to do this, use that when available.
+      $bubbleable_metadata = BubbleableMetadata::createFromRenderArray($build);
+      $build['#configuration']['label'] = PlainTextOutput::renderFromHtml(\Drupal::token()->replace($label, [], [], $bubbleable_metadata));
+      $bubbleable_metadata->applyTo($build);
+    }
   }
 }
 
