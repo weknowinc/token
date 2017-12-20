@@ -114,7 +114,7 @@ function token_token_info_alter(&$info) {
     if (!isset($info['tokens']['date'][$date_format_type])) {
       $info['tokens']['date'][$date_format_type] = array(
         'name' => Html::escape($date_format_type_info->label()),
-        'description' => t("A date in '@type' format. (%date)", array('@type' => $date_format_type, '%date' => format_date(REQUEST_TIME, $date_format_type))),
+        'description' => t("A date in '@type' format. (%date)", array('@type' => $date_format_type, '%date' => \Drupal::service('date.formatter')->format(REQUEST_TIME, $date_format_type))),
         'module' => 'token',
       );
     }
@@ -447,7 +447,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     $date_format_types = \Drupal::entityTypeManager()->getStorage('date_format')->loadMultiple();
     foreach ($tokens as $name => $original) {
       if (isset($date_format_types[$name]) && _token_module('date', $name) == 'token') {
-        $replacements[$original] = format_date($date, $name, '', NULL, $langcode);
+        $replacements[$original] = \Drupal::service('date.formatter')->format($date, $name, '', NULL, $langcode);
       }
     }
   }
