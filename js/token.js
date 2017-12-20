@@ -1,5 +1,5 @@
 
-(function ($) {
+(function ($, Drupal, drupalSettings) {
 
   'use strict';
 
@@ -84,4 +84,4 @@
     }
   };
 
-})(jQuery, drupalSettings);
+})(jQuery, Drupal, drupalSettings);
