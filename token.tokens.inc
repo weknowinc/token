@@ -1680,13 +1680,15 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
         }
       }
       elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange']) && in_array($property_name, ['date', 'start_date', 'end_date'])) {
-        $datetime = $field_item->$property_name->getTimestamp();
-        if($property_name == $token) {
-          $replacements[$original] = $datetime;
+        $timestamp = $field_item->$property_name->getTimestamp();
+        // If the token is an exact match for the property or the delta and the
+        // property, use the timestamp as-is.
+        if($property_name == $token || "$delta:$property_name" == $token) {
+          $replacements[$original] = $timestamp;
         }
         else {
-          $field_tokens = \Drupal::token()->findWithPrefix($tokens, $property_name);
-          $replacements += \Drupal::token()->generate('date', $field_tokens, ['date' => $datetime], $options, $bubbleable_metadata);
+          $date_tokens = \Drupal::token()->findWithPrefix($filtered_tokens, $property_name);
+          $replacements += \Drupal::token()->generate('date', $date_tokens, ['date' => $timestamp], $options, $bubbleable_metadata);
         }
       }
       else {
