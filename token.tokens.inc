@@ -1639,40 +1639,42 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
         // replacement.
         $property_name = isset($parts[1]) ? $parts[1] : 'url';
         $entity = $field_item->entity;
-        $original_uri = $entity->getFileUri();
+        if (!empty($field_item->entity)) {
+          $original_uri = $entity->getFileUri();
 
-        // Only generate the image derivative if needed.
-        if ($property_name === 'width' || $property_name === 'height') {
-          $dimensions = [
-            'width' => $field_item->width,
-            'height' => $field_item->height,
-          ];
-          $style->transformDimensions($dimensions, $original_uri);
-          $replacements[$original] = $dimensions[$property_name];
-        }
-        elseif ($property_name === 'uri') {
-          $replacements[$original] = $style->buildUri($original_uri);
-        }
-        elseif ($property_name === 'url') {
-          $replacements[$original] = $style->buildUrl($original_uri);
-        }
-        else {
-          // Generate the image derivative, if it doesn't already exist.
-          $derivative_uri = $style->buildUri($original_uri);
-          $derivative_exists = TRUE;
-          if (!file_exists($derivative_uri)) {
-            $derivative_exists = $style->createDerivative($original_uri, $derivative_uri);
+          // Only generate the image derivative if needed.
+          if ($property_name === 'width' || $property_name === 'height') {
+            $dimensions = [
+              'width' => $field_item->width,
+              'height' => $field_item->height,
+            ];
+            $style->transformDimensions($dimensions, $original_uri);
+            $replacements[$original] = $dimensions[$property_name];
           }
-          if ($derivative_exists) {
-            $image = \Drupal::service('image.factory')->get($derivative_uri);
-            // Provide the replacement.
-            switch ($property_name) {
-              case 'mimetype':
-                $replacements[$original] = $image->getMimeType();
-                break;
-              case 'filesize' :
-                $replacements[$original] = $image->getFileSize();
-                break;
+          elseif ($property_name === 'uri') {
+            $replacements[$original] = $style->buildUri($original_uri);
+          }
+          elseif ($property_name === 'url') {
+            $replacements[$original] = $style->buildUrl($original_uri);
+          }
+          else {
+            // Generate the image derivative, if it doesn't already exist.
+            $derivative_uri = $style->buildUri($original_uri);
+            $derivative_exists = TRUE;
+            if (!file_exists($derivative_uri)) {
+              $derivative_exists = $style->createDerivative($original_uri, $derivative_uri);
+            }
+            if ($derivative_exists) {
+              $image = \Drupal::service('image.factory')->get($derivative_uri);
+              // Provide the replacement.
+              switch ($property_name) {
+                case 'mimetype':
+                  $replacements[$original] = $image->getMimeType();
+                  break;
+                case 'filesize' :
+                  $replacements[$original] = $image->getFileSize();
+                  break;
+              }
             }
           }
         }
