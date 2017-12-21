@@ -32,10 +32,17 @@ class TokenUserTest extends TokenTestBase {
   public function setUp() {
     parent::setUp();
 
-    $this->account = $this->drupalCreateUser(['administer users', 'administer account settings', 'access content']);
+    $this->account = $this->drupalCreateUser([
+      'administer users',
+      'administer account settings',
+      'access content',
+    ]);
     $this->drupalLogin($this->account);
   }
 
+  /**
+   * Tests the user releated tokens.
+   */
   public function testUserTokens() {
     // Enable user pictures.
     \Drupal::state()->set('user_pictures', 1);
@@ -49,7 +56,7 @@ class TokenUserTest extends TokenTestBase {
 
     // Add a user picture to the account.
     $image = current($this->drupalGetTestFiles('image'));
-    $edit = array('files[user_picture_0]' => drupal_realpath($image->uri));
+    $edit = array('files[user_picture_0]' => \Drupal::service('file_system')->realpath($image->uri));
     $this->drupalPostForm('user/' . $this->account->id() . '/edit', $edit, t('Save'));
 
     $storage = \Drupal::entityTypeManager()->getStorage('user');
@@ -107,6 +114,9 @@ class TokenUserTest extends TokenTestBase {
     $this->assertTokens('user', array('user' => $anonymous), $tokens);
   }
 
+  /**
+   * Test user account settings.
+   */
   public function testUserAccountSettings() {
     $this->drupalGet('admin/config/people/accounts');
     $this->assertText('The list of available tokens that can be used in e-mails is provided below.');
