@@ -47,7 +47,7 @@ class TokenBlockTest extends TokenTestBase {
     $block = $this->drupalPlaceBlock('block_content:' . $block_content->uuid(), array(
       'label' => '[user:name]',
     ));
-    $this->drupalGet($block->urlInfo());
+    $this->drupalGet($block->toUrl());
     // Ensure that the link to available tokens is present and correctly
     // positioned.
     $this->assertLink('Browse available tokens.');

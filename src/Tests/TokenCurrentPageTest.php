@@ -43,13 +43,13 @@ class TokenCurrentPageTest extends TokenTestBase {
     $node = $this->drupalCreateNode(array('title' => 'Node title', 'path' => array('alias' => '/node-alias')));
     $tokens = array(
       '[current-page:title]' => 'Node title',
-      '[current-page:url]' => $node->url('canonical', array('absolute' => TRUE)),
-      '[current-page:url:absolute]' => $node->url('canonical', array('absolute' => TRUE)),
-      '[current-page:url:relative]' => $node->url(),
+      '[current-page:url]' => $node->toUrl('canonical', array('absolute' => TRUE))->toString(),
+      '[current-page:url:absolute]' => $node->toUrl('canonical', array('absolute' => TRUE))->toString(),
+      '[current-page:url:relative]' => $node->toUrl()->toString(),
       '[current-page:url:alias]' => '/node-alias',
       '[current-page:url:args:value:0]' => 'node-alias',
       '[current-page:url:args:value:1]' => NULL,
-      '[current-page:url:unaliased]' => $node->url('canonical', array('absolute' => TRUE, 'alias' => TRUE)),
+      '[current-page:url:unaliased]' => $node->toUrl('canonical', array('absolute' => TRUE, 'alias' => TRUE))->toString(),
       '[current-page:url:unaliased:args:value:0]' => 'node',
       '[current-page:url:unaliased:args:value:1]' => $node->id(),
       '[current-page:url:unaliased:args:value:2]' => NULL,

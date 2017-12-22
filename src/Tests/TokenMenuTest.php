@@ -117,7 +117,7 @@ class TokenMenuTest extends TokenTestBase {
       'menu-link:id' => $node_link->getPluginId(),
       'menu-link:title' => 'Node link',
       'menu-link:menu' => 'Main menu',
-      'menu-link:url' => $node->url('canonical', ['absolute' => TRUE]),
+      'menu-link:url' => $node->toUrl('canonical', ['absolute' => TRUE])->toString(),
       'menu-link:url:path' => '/node/' . $node->id(),
       'menu-link:edit-url' => $node_link->url('edit-form', ['absolute' => TRUE]),
       'menu-link:parent' => 'Configuration',

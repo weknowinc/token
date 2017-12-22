@@ -466,7 +466,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     // Chained token relationships.
     if (($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url'))) {
       // Add fragment to url options.
-      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $comment->urlInfo('canonical', ['fragment' => "comment-{$comment->id()}"])), $options, $bubbleable_metadata);
+      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $comment->toUrl('canonical', ['fragment' => "comment-{$comment->id()}"])), $options, $bubbleable_metadata);
     }
   }
 
@@ -495,7 +495,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
       $replacements += \Drupal::token()->generate('content-type', $node_type_tokens, array('node_type' => $node_type), $options, $bubbleable_metadata);
     }
     if (($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url'))) {
-      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $node->urlInfo()), $options, $bubbleable_metadata);
+      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $node->toUrl()), $options, $bubbleable_metadata);
     }
   }
 
@@ -523,7 +523,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           $replacements[$original] = (int) $count;
           break;
         case 'edit-url':
-          $replacements[$original] = $node_type->url('edit-form', $url_options);
+          $replacements[$original] = $node_type->toUrl('edit-form', $url_options)->toString();
           break;
       }
     }
@@ -561,7 +561,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
     // Chained token relationships.
     if (($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url'))) {
-      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $term->urlInfo()), $options, $bubbleable_metadata);
+      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $term->toUrl()), $options, $bubbleable_metadata);
     }
     // [term:parents:*] chained tokens.
     if ($parents_tokens = \Drupal::token()->findWithPrefix($tokens, 'parents')) {
@@ -647,7 +647,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
       $replacements += \Drupal::token()->generate('file', $picture_tokens, array('file' => $account->user_picture->entity), $options, $bubbleable_metadata);
     }
     if ($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url')) {
-      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $account->urlInfo()), $options, $bubbleable_metadata);
+      $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $account->toUrl()), $options, $bubbleable_metadata);
     }
     if ($role_tokens = \Drupal::token()->findWithPrefix($tokens, 'roles')) {
       $roles = $account->getRoles();
@@ -854,7 +854,8 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'url':
-          if (_token_module($type, 'url') == 'token' && $url = $entity->url()) {
+          $entity_has_url = !$entity->isNew() && $entity->hasLinkTemplate('canonical');
+          if (_token_module($type, 'url') == 'token' && $entity_has_url && $url = $entity->toUrl('canonical')->toString()) {
             $replacements[$original] = $url;
           }
           break;
@@ -1203,7 +1204,7 @@ function menu_ui_tokens($type, $tokens, array $data = array(), array $options = 
           $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $menu_link), $options, $bubbleable_metadata);
         }
         else {
-          $url = $node->urlInfo();
+          $url = $node->toUrl();
           if ($links = $menu_link_manager->loadLinksByRoute($url->getRouteName(), $url->getRouteParameters())) {
             $link = _token_menu_link_best_match($node, $links);
             $replacements += \Drupal::token()->generate('menu-link', $menu_tokens, array('menu-link' => $link), $options, $bubbleable_metadata);
