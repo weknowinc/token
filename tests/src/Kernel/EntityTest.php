@@ -55,8 +55,9 @@ class EntityTest extends KernelTestBase {
     $this->assertIdentical($mapper->getTokenTypeForEntityType('invalid'), FALSE);
     $this->assertIdentical($mapper->getTokenTypeForEntityType('invalid', TRUE), 'invalid');
 
-    // Test that when we send the mis-matched entity type into token_replace()
-    // that we still get the tokens replaced.
+    // Test that when we send the mis-matched entity type into
+    // Drupal\Core\Utility\Token::replace() that we still get the tokens
+    // replaced.
     $vocabulary = entity_load('taxonomy_vocabulary', 'tags');
     $term = $this->addTerm($vocabulary);
     $this->assertIdentical(\Drupal::token()->replace('[vocabulary:name]', array('taxonomy_vocabulary' => $vocabulary)), $vocabulary->label());
