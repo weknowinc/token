@@ -2,6 +2,7 @@
 
 namespace Drupal\token\Tests;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\field\Entity\FieldStorageConfig;
 
@@ -96,7 +97,7 @@ class TokenUserTest extends TokenTestBase {
       'picture:fid' => NULL,
       'ip-address' => NULL,
       'roles' => 'authenticated',
-      'roles:keys' => (string) DRUPAL_AUTHENTICATED_RID,
+      'roles:keys' => AccountInterface::AUTHENTICATED_ROLE,
     );
     $this->assertTokens('user', array('user' => $this->account), $user_tokens);
 
@@ -109,7 +110,7 @@ class TokenUserTest extends TokenTestBase {
     $anonymous = new AnonymousUserSession();
     $tokens = array(
       'roles' => 'anonymous',
-      'roles:keys' => (string) DRUPAL_ANONYMOUS_RID,
+      'roles:keys' => AccountInterface::ANONYMOUS_ROLE,
     );
     $this->assertTokens('user', array('user' => $anonymous), $tokens);
   }
