@@ -4,6 +4,7 @@
  * @file
  * Token callbacks for the token module.
  */
+
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface;
@@ -734,10 +735,10 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
   // Current page tokens.
   if ($type == 'current-page') {
+    $request = \Drupal::request();
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'title':
-          $request = \Drupal::request();
           $route = $request->attributes->get(RouteObjectInterface::ROUTE_OBJECT);
           if ($route) {
             $title = \Drupal::service('title_resolver')->getTitle($request, $route);
@@ -745,10 +746,14 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
           }
           break;
         case 'url':
-          $replacements[$original] = Url::fromRoute('<current>', [], $url_options)->toString();
+          $bubbleable_metadata->addCacheContexts(['url.path']);
+          $url = Url::createFromRequest($request)
+            ->setOptions($url_options)
+            ->toString();
+          $replacements[$original] = $url;
           break;
         case 'page-number':
-          if ($page = \Drupal::request()->query->get('page')) {
+          if ($page = $request->query->get('page')) {
             // @see PagerDefault::execute()
             $pager_page_array = explode(',', $page);
             $page = $pager_page_array[0];
@@ -774,6 +779,7 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
     // [current-page:query] dynamic tokens.
     if ($query_tokens = \Drupal::token()->findWithPrefix($tokens, 'query')) {
+      $bubbleable_metadata->addCacheContexts(['url.query_args']);
       foreach ($query_tokens as $name => $original) {
         if (\Drupal::request()->query->has($name)) {
           $value = \Drupal::request()->query->get($name);
@@ -784,7 +790,9 @@ function token_tokens($type, array $tokens, array $data = array(), array $option
 
     // Chained token relationships.
     if ($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url')) {
-      $url = Url::fromRoute('<current>');
+      $url = Url::createFromRequest($request);
+      // Add cache contexts to ensure this token functions on a per-path basis
+      $bubbleable_metadata->addCacheContexts(['url.path']);
       $replacements += \Drupal::token()->generate('url', $url_tokens, array('url' => $url), $options, $bubbleable_metadata);
     }
   }
