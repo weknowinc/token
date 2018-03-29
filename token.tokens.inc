@@ -1688,7 +1688,7 @@ function field_tokens($type, $tokens, array $data = array(), array $options = ar
           }
         }
       }
-      elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange']) && in_array($property_name, ['date', 'start_date', 'end_date'])) {
+      elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange']) && in_array($property_name, ['date', 'start_date', 'end_date']) && !empty($field_item->$property_name)) {
         $timestamp = $field_item->$property_name->getTimestamp();
         // If the token is an exact match for the property or the delta and the
         // property, use the timestamp as-is.
