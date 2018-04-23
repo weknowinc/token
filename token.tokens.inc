@@ -236,7 +236,7 @@ function token_token_info() {
   // Current user tokens.
   $info['tokens']['current-user']['ip-address'] = array(
     'name' => t('IP address'),
-    'description' => 'The IP address of the current user.',
+    'description' => t('The IP address of the current user.'),
   );
 
   // Menu link tokens (work regardless if menu module is enabled or not).
