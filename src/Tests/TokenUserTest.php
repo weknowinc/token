@@ -25,7 +25,7 @@ class TokenUserTest extends TokenTestBase {
    *
    * @var array
    */
-  public static $modules = array('token_user_picture');
+  public static $modules = ['token_user_picture'];
 
   /**
    * {@inheritdoc}
@@ -57,7 +57,7 @@ class TokenUserTest extends TokenTestBase {
 
     // Add a user picture to the account.
     $image = current($this->drupalGetTestFiles('image'));
-    $edit = array('files[user_picture_0]' => \Drupal::service('file_system')->realpath($image->uri));
+    $edit = ['files[user_picture_0]' => \Drupal::service('file_system')->realpath($image->uri)];
     $this->drupalPostForm('user/' . $this->account->id() . '/edit', $edit, t('Save'));
 
     $storage = \Drupal::entityTypeManager()->getStorage('user');
@@ -73,14 +73,14 @@ class TokenUserTest extends TokenTestBase {
     ];
     /** @var \Drupal\Core\Render\RendererInterface $renderer */
     $renderer = \Drupal::service('renderer');
-    $user_tokens = array(
+    $user_tokens = [
       'picture' => $renderer->renderPlain($picture),
       'picture:fid' => $this->account->user_picture->target_id,
       'picture:size-raw' => 125,
       'ip-address' => NULL,
       'roles' => implode(', ', $this->account->getRoles()),
-    );
-    $this->assertTokens('user', array('user' => $this->account), $user_tokens);
+    ];
+    $this->assertTokens('user', ['user' => $this->account], $user_tokens);
 
     // Remove the simpletest-created user role.
     $roles = $this->account->getRoles();
@@ -92,27 +92,27 @@ class TokenUserTest extends TokenTestBase {
     $storage->resetCache();
     $this->account = $storage->load($this->account->id());
 
-    $user_tokens = array(
+    $user_tokens = [
       'picture' => NULL,
       'picture:fid' => NULL,
       'ip-address' => NULL,
       'roles' => 'authenticated',
       'roles:keys' => AccountInterface::AUTHENTICATED_ROLE,
-    );
-    $this->assertTokens('user', array('user' => $this->account), $user_tokens);
+    ];
+    $this->assertTokens('user', ['user' => $this->account], $user_tokens);
 
     // The ip address token should work for the current user token type.
-    $tokens = array(
+    $tokens = [
       'ip-address' => \Drupal::request()->getClientIp(),
-    );
-    $this->assertTokens('current-user', array(), $tokens);
+    ];
+    $this->assertTokens('current-user', [], $tokens);
 
     $anonymous = new AnonymousUserSession();
-    $tokens = array(
+    $tokens = [
       'roles' => 'anonymous',
       'roles:keys' => AccountInterface::ANONYMOUS_ROLE,
-    );
-    $this->assertTokens('user', array('user' => $anonymous), $tokens);
+    ];
+    $this->assertTokens('user', ['user' => $anonymous], $tokens);
   }
 
   /**
