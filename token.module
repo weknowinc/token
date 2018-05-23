@@ -666,7 +666,7 @@ function token_book_load_all_parents(array $book) {
  * Implements hook_entity_base_field_info().
  */
 function token_entity_base_field_info(EntityTypeInterface $entity_type) {
-  // We add a psuedo entity-reference field to track the menu entry created
+  // We add a pseudo entity-reference field to track the menu entry created
   // from the node add/edit form so that tokens generated at that time that
   // reference the menu link can access the yet to be saved menu link.
   // @todo Revisit when https://www.drupal.org/node/2315773 is resolved.
