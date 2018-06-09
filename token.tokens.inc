@@ -751,11 +751,18 @@ function token_tokens($type, array $tokens, array $data = [], array $options = [
             $url = Url::createFromRequest($request)->setOptions($url_options);
           }
           catch (\Exception $e) {
-            // Url::createFromRequest() can fail, e.g. on 404 pages, fall back
-            // the <current> route.
-            $url = Url::fromUserInput($request->getPathInfo(), $url_options);
+            // Url::createFromRequest() can fail, e.g. on 404 pages.
+            // Fall back and try again with Url::fromUserInput().
+            try {
+              $url = Url::fromUserInput($request->getPathInfo(), $url_options);
+            }
+            catch (\Exception $e) {
+              // Instantiation would fail again on malformed urls.
+            }
           }
-          $replacements[$original] = $url->toString();
+          if (isset($url)) {
+            $replacements[$original] = $url->toString();
+          }
           break;
         case 'page-number':
           if ($page = $request->query->get('page')) {
@@ -795,13 +802,19 @@ function token_tokens($type, array $tokens, array $data = [], array $options = [
 
     // Chained token relationships.
     if ($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url')) {
+      $url = NULL;
       try {
         $url = Url::createFromRequest($request)->setOptions($url_options);
       }
       catch (\Exception $e) {
-        // Url::createFromRequest() can fail, e.g. on 404 pages, fall back
-        // the <current> route.
-        $url = Url::fromUserInput($request->getPathInfo(), $url_options);
+        // Url::createFromRequest() can fail, e.g. on 404 pages.
+        // Fall back and try again with Url::fromUserInput().
+        try {
+          $url = Url::fromUserInput($request->getPathInfo(), $url_options);
+        }
+        catch (\Exception $e) {
+          // Instantiation would fail again on malformed urls.
+        }
       }
       // Add cache contexts to ensure this token functions on a per-path basis
       $bubbleable_metadata->addCacheContexts(['url.path']);
