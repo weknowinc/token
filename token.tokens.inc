@@ -887,9 +887,8 @@ function token_tokens($type, array $tokens, array $data = [], array $options = [
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'url':
-          $entity_has_url = !$entity->isNew() && $entity->hasLinkTemplate('canonical');
-          if (_token_module($type, 'url') == 'token' && $entity_has_url && $url = $entity->toUrl('canonical')->toString()) {
-            $replacements[$original] = $url;
+          if (_token_module($type, 'url') === 'token' && !$entity->isNew() && $entity->hasLinkTemplate('canonical')) {
+            $replacements[$original] = $entity->toUrl('canonical')->toString();
           }
           break;
 
