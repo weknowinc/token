@@ -148,6 +148,7 @@ class TaxonomyTest extends KernelTestBase {
 
     // Expect the parent term to be in the specified language.
     $this->assertTokens('term', ['term' => $child_term], ['parents' => 'german-parent-term'], ['langcode' => 'de']);
+    $this->assertTokens('term', ['term' => $child_term], ['root' => 'german-parent-term'], ['langcode' => 'de']);
   }
 
 }

@@ -559,6 +559,7 @@ function token_tokens($type, array $tokens, array $data = [], array $options = [
           $parents = $term_storage->loadAllParents($term->id());
           $root_term = end($parents);
           if ($root_term->id() != $term->id()) {
+            $root_term = \Drupal::service('entity.repository')->getTranslationFromContext($root_term, $langcode);
             $replacements[$original] = $root_term->label();
           }
           break;
