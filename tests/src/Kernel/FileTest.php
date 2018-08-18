@@ -52,4 +52,5 @@ class FileTest extends KernelTestBase {
     ];
     $this->assertTokens('file', ['file' => $file], $tokens);
   }
+
 }

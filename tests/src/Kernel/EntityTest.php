@@ -102,4 +102,5 @@ class EntityTest extends KernelTestBase {
     ];
     $this->assertTokens('node', ['node' => $node], $tokens);
   }
+
 }

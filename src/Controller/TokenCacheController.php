@@ -7,7 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 /**
  * Clears cache for tokens.
  */
-class TokenCacheController extends ControllerBase  {
+class TokenCacheController extends ControllerBase {
 
   /**
    * Clear caches and redirect back to the frontpage.

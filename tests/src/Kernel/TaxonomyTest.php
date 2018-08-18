@@ -13,6 +13,7 @@ use Drupal\Core\Url;
  * @group token
  */
 class TaxonomyTest extends KernelTestBase {
+
   protected $vocab;
 
   /**
@@ -148,4 +149,5 @@ class TaxonomyTest extends KernelTestBase {
     // Expect the parent term to be in the specified language.
     $this->assertTokens('term', ['term' => $child_term], ['parents' => 'german-parent-term'], ['langcode' => 'de']);
   }
+
 }
