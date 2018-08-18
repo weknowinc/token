@@ -1502,7 +1502,7 @@ function field_token_info_alter(&$info) {
         $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
         $info['tokens'][$field_token_name]['date']['type'] = 'date';
       }
-      if ($field->getType() == 'daterange') {
+      if ($field->getType() == 'daterange' || $field->getType() == 'date_recur') {
         $info['tokens'][$field_token_name]['start_date'] = $info['tokens'][$field_token_name]['value'];
         $info['tokens'][$field_token_name]['start_date']['name'] .= ' ' . t('format');
         $info['tokens'][$field_token_name]['start_date']['type'] = 'date';
@@ -1739,8 +1739,8 @@ function field_tokens($type, $tokens, array $data = [], array $options = [], Bub
           }
         }
       }
-      elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange']) && in_array($property_name, ['date', 'start_date', 'end_date']) && !empty($field_item->$property_name)) {
-        $timestamp = $field_item->$property_name->getTimestamp();
+      elseif (in_array($field_item->getFieldDefinition()->getType(), ['datetime', 'daterange', 'date_recur']) && in_array($property_name, ['date', 'start_date', 'end_date']) && !empty($field_item->$property_name)) {
+        $timestamp = $field_item->{$property_name}->getTimestamp();
         // If the token is an exact match for the property or the delta and the
         // property, use the timestamp as-is.
         if ($property_name == $token || "$delta:$property_name" == $token) {
