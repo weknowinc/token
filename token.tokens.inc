@@ -17,6 +17,7 @@ use Drupal\Core\Url;
 use Drupal\field\FieldStorageConfigInterface;
 use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\system\Entity\Menu;
 use Drupal\user\UserInterface;
@@ -492,7 +493,7 @@ function token_tokens($type, array $tokens, array $data = [], array $options = [
     if (($parent_tokens = \Drupal::token()->findWithPrefix($tokens, 'source')) && $source_node = $node->getUntranslated()) {
       $replacements += \Drupal::token()->generate('node', $parent_tokens, ['node' => $source_node], $options, $bubbleable_metadata);
     }
-    if (($node_type_tokens = \Drupal::token()->findWithPrefix($tokens, 'content-type')) && $node_type = node_type_load($node->bundle())) {
+    if (($node_type_tokens = \Drupal::token()->findWithPrefix($tokens, 'content-type')) && $node_type = NodeType::load($node->bundle())) {
       $replacements += \Drupal::token()->generate('content-type', $node_type_tokens, ['node_type' => $node_type], $options, $bubbleable_metadata);
     }
     if (($url_tokens = \Drupal::token()->findWithPrefix($tokens, 'url'))) {
