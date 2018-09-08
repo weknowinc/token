@@ -11,7 +11,6 @@ use Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface;
 use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Render\Element;
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\TypedData\DataReferenceDefinitionInterface;
 use Drupal\Core\Url;
@@ -90,7 +89,7 @@ function token_token_info_alter(&$info) {
     if (!isset($info['tokens'][$token_type]['url'])) {
       $info['tokens'][$token_type]['url'] = [
         'name' => t('URL'),
-        'description' => t('The URL of the @entity.', ['@entity' => Unicode::strtolower($entity_info->getLabel())]),
+        'description' => t('The URL of the @entity.', ['@entity' => mb_strtolower($entity_info->getLabel())]),
         'module' => 'token',
         'type' => 'url',
       ];
@@ -99,8 +98,8 @@ function token_token_info_alter(&$info) {
     // Add [entity:original] tokens if they do not already exist.
     if (!isset($info['tokens'][$token_type]['original'])) {
       $info['tokens'][$token_type]['original'] = [
-        'name' => t('Original @entity', ['@entity' => Unicode::strtolower($entity_info->getLabel())]),
-        'description' => t('The original @entity data if the @entity is being updated or saved.', ['@entity' => Unicode::strtolower($entity_info->getLabel())]),
+        'name' => t('Original @entity', ['@entity' => mb_strtolower($entity_info->getLabel())]),
+        'description' => t('The original @entity data if the @entity is being updated or saved.', ['@entity' => mb_strtolower($entity_info->getLabel())]),
         'module' => 'token',
         'type' => $token_type,
       ];

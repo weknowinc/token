@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\token\Kernel;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\node\Entity\Node;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\taxonomy\VocabularyInterface;
@@ -66,7 +65,7 @@ class EntityTest extends KernelTestBase {
 
   function addTerm(VocabularyInterface $vocabulary, array $term = []) {
     $term += [
-      'name' => Unicode::strtolower($this->randomMachineName(5)),
+      'name' => mb_strtolower($this->randomMachineName(5)),
       'vid' => $vocabulary->id(),
     ];
     $term = entity_create('taxonomy_term', $term);

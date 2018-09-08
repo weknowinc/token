@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\token\Kernel;
 
-use Drupal\Component\Utility\Unicode;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\Core\Url;
@@ -102,7 +101,7 @@ class TaxonomyTest extends KernelTestBase {
 
   function addVocabulary(array $vocabulary = []) {
     $vocabulary += [
-      'name' => Unicode::strtolower($this->randomMachineName(5)),
+      'name' => mb_strtolower($this->randomMachineName(5)),
       'nodes' => ['article' => 'article'],
     ];
     $vocabulary = entity_create('taxonomy_vocabulary', $vocabulary)->save();
@@ -111,7 +110,7 @@ class TaxonomyTest extends KernelTestBase {
 
   function addTerm($vocabulary, array $term = []) {
     $term += [
-      'name' => Unicode::strtolower($this->randomMachineName(5)),
+      'name' => mb_strtolower($this->randomMachineName(5)),
       'vid' => $vocabulary->id(),
     ];
     $term = entity_create('taxonomy_term', $term);
