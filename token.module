@@ -678,6 +678,7 @@ function token_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'menu_link_content')
       ->setTranslatable(TRUE)
+      ->setInternal(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'region' => 'hidden',
