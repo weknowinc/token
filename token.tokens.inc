@@ -1376,7 +1376,7 @@ function field_token_info_alter(&$info) {
 
   // Attach field tokens to their respecitve entity tokens.
   foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type_id => $entity_type) {
-    if (!$entity_type->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface')) {
+    if (!$entity_type->entityClassImplements(ContentEntityInterface::class)) {
       continue;
     }
 
