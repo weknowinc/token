@@ -1,6 +1,8 @@
 <?php
 
-namespace Drupal\token\Tests\Tree;
+namespace Drupal\Tests\token\Functional\Tree;
+
+use Behat\Mink\Element\NodeElement;
 
 /**
  * Helper trait to assert tokens in token tree browser.
@@ -15,8 +17,8 @@ trait TokenTreeTestTrait {
    */
   protected function getTokenGroups() {
     $groups = $this->xpath('//tr[contains(@class, "token-group")]/td[1]');
-    return array_map(function ($item) {
-      return (string) $item;
+    return array_map(function (NodeElement $item) {
+      return (string) $item->getText();
     }, $groups);
   }
 

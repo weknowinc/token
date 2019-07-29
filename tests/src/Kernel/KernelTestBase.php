@@ -3,7 +3,7 @@
 namespace Drupal\Tests\token\Kernel;
 
 use Drupal\KernelTests\KernelTestBase as BaseKernelTestBase;
-use Drupal\token\Tests\TokenTestTrait;
+use Drupal\Tests\token\Functional\TokenTestTrait;
 
 /**
  * Helper test class with some added functions for testing.

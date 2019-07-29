@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\token\Tests;
+namespace Drupal\Tests\token\Functional;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\Tests\BrowserTestBase;
 
 /**
  * Helper test class with some added functions for testing.
  */
-abstract class TokenTestBase extends WebTestBase {
+abstract class TokenTestBase extends BrowserTestBase {
 
   use TokenTestTrait;
 

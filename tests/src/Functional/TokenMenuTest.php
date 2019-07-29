@@ -1,7 +1,8 @@
 <?php
 
-namespace Drupal\token\Tests;
+namespace Drupal\Tests\token\Functional;
 
+use Behat\Mink\Element\NodeElement;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Url;
 use Drupal\node\Entity\NodeType;
@@ -186,8 +187,8 @@ class TokenMenuTest extends TokenTestBase {
     $select = reset($selects);
     $options = $this->getAllOptions($select);
     // Filter to items with title containing 'Test preview'.
-    $options = array_filter($options, function (\SimpleXMLElement $item) {
-      return strpos((string) $item[0], 'Test preview') !== FALSE;
+    $options = array_filter($options, function (NodeElement $element) {
+      return strpos($element->getText(), 'Test preview') !== FALSE;
     });
     $this->assertEqual(1, count($options));
     $this->drupalPostForm(NULL, [
@@ -218,8 +219,8 @@ class TokenMenuTest extends TokenTestBase {
     $select = reset($selects);
     $options = $this->getAllOptions($select);
     // Filter to items with title containing 'Test preview'.
-    $options = array_filter($options, function (\SimpleXMLElement $item) {
-      return strpos((string) $item[0], 'Child link') !== FALSE;
+    $options = array_filter($options, function (NodeElement $item) {
+      return strpos($item->getText(), 'Child link') !== FALSE;
     });
     $this->assertEqual(1, count($options));
 
