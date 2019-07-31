@@ -762,6 +762,7 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
       $entity->menu_name->value = $values['menu_name'];
       $entity->parent->value = $values['parent'];
       $entity->weight->value = isset($values['weight']) ? $values['weight'] : 0;
+      $entity->isDefaultRevision($node->isDefaultRevision());
       $entity->save();
       $node->menu_link = $entity;
       // Leave this for _menu_ui_node_save() to pick up so we don't end up with
