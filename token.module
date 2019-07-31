@@ -130,28 +130,28 @@ function token_field_info_alter(&$info) {
 }
 
 /**
- * Implements hook_date_format_insert().
+ * Implements hook_ENTITY_TYPE_insert().
  */
 function token_date_format_insert() {
   token_clear_cache();
 }
 
 /**
- * Implements hook_date_format_delete().
+ * Implements hook_ENTITY_TYPE_delete().
  */
 function token_date_format_delete() {
   token_clear_cache();
 }
 
 /**
- * Implements hook_field_storage_config_presave().
+ * Implements hook_ENTITY_TYPE_presave().
  */
 function token_field_config_presave($instance) {
   token_clear_cache();
 }
 
 /**
- * Implements hook_field_storage_config_delete().
+ * Implements hook_ENTITY_TYPE_delete().
  */
 function token_field_config_delete($instance) {
   token_clear_cache();
@@ -204,10 +204,6 @@ function token_entity_type_alter(array &$entity_types) {
     }
   }
 }
-
-/**
- * Implements hook_entity_view_modes_info().
- */
 
 /**
  * Implements hook_module_implements_alter().
