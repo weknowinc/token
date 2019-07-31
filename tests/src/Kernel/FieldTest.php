@@ -219,6 +219,20 @@ class FieldTest extends KernelTestBase {
       'bundle' => 'article',
     ]);
     $field_daterange->save();
+
+    // Add a timestamp field.
+    $field_timestamp_storage = FieldStorageConfig::create([
+      'field_name' => 'field_timestamp',
+      'type' => 'timestamp',
+      'entity_type' => 'node',
+      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
+    ]);
+    $field_timestamp_storage->save();
+    $field_timestamp = FieldConfig::create([
+      'field_storage' => $field_timestamp_storage,
+      'bundle' => 'article',
+    ]);
+    $field_timestamp->save();
   }
 
   /**
@@ -728,4 +742,27 @@ class FieldTest extends KernelTestBase {
     ]);
   }
 
+  /**
+   * Tests support for a timestamp fields.
+   */
+  public function testTimestampFieldTokens() {
+
+    $node = Node::create([
+      'title' => 'Node for timestamp field',
+      'type' => 'article',
+    ]);
+
+    $node->set('field_timestamp', ['1277540209', '1532593009'])->save();
+    $this->assertTokens('node', ['node' => $node], [
+      'field_timestamp:date:custom:Y' => '2010',
+      'field_timestamp:date:html_month' => '2010-06',
+      'field_timestamp:date' => $node->get('field_timestamp')->value,
+      'field_timestamp:0:date:custom:Y' => '2010',
+      'field_timestamp:0:date:html_month' => '2010-06',
+      'field_timestamp:0:date' => $node->get('field_timestamp')->value,
+      'field_timestamp:1:date:custom:Y' => '2018',
+      'field_timestamp:1:date:html_month' => '2018-07',
+      'field_timestamp:1:date' => $node->get('field_timestamp')->get(1)->value,
+    ]);
+  }
 }

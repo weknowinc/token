@@ -1502,6 +1502,11 @@ function field_token_info_alter(&$info) {
         $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
         $info['tokens'][$field_token_name]['date']['type'] = 'date';
       }
+      if ($field->getType() == 'timestamp' || $field->getType() == 'created' || $field->getType() == 'changed') {
+        $info['tokens'][$field_token_name]['date'] = $info['tokens'][$field_token_name]['value'];
+        $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
+        $info['tokens'][$field_token_name]['date']['type'] = 'date';
+      }
       if ($field->getType() == 'daterange' || $field->getType() == 'date_recur') {
         $info['tokens'][$field_token_name]['start_date'] = $info['tokens'][$field_token_name]['value'];
         $info['tokens'][$field_token_name]['start_date']['name'] .= ' ' . t('format');
@@ -1749,6 +1754,16 @@ function field_tokens($type, $tokens, array $data = [], array $options = [], Bub
         else {
           $date_tokens = \Drupal::token()->findWithPrefix($filtered_tokens, $property_name);
           $replacements += \Drupal::token()->generate('date', $date_tokens, ['date' => $timestamp], $options, $bubbleable_metadata);
+        }
+      }
+      elseif (in_array($field_item->getFieldDefinition()->getType(), ['timestamp', 'created', 'changed']) && in_array($property_name, ['date'])) {
+        $timestamp = $field_item->value;
+        if ($property_name == $token || "$delta:$property_name" == $token) {
+          $replacements[$original] = $timestamp;
+        }
+        else {
+          $field_tokens = \Drupal::token()->findWithPrefix($filtered_tokens, $property_name);
+          $replacements += \Drupal::token()->generate('date', $field_tokens, ['date' => $timestamp], $options, $bubbleable_metadata);
         }
       }
       else {
