@@ -121,48 +121,50 @@ function token_token_info_alter(&$info) {
  */
 function token_token_info() {
   // Node tokens.
-  $info['tokens']['node']['source'] = [
-    'name' => t('Translation source node'),
-    'description' => t("The source node for this current node's translation set."),
-    'type' => 'node',
-  ];
-  $info['tokens']['node']['log'] = [
-    'name' => t('Revision log message'),
-    'description' => t('The explanation of the most recent changes made to the node.'),
-  ];
-  $info['tokens']['node']['content-type'] = [
-    'name' => t('Content type'),
-    'description' => t('The content type of the node.'),
-    'type' => 'content-type',
-  ];
+  if (\Drupal::moduleHandler()->moduleExists('node')) {
+    $info['tokens']['node']['source'] = [
+      'name' => t('Translation source node'),
+      'description' => t("The source node for this current node's translation set."),
+      'type' => 'node',
+    ];
+    $info['tokens']['node']['log'] = [
+      'name' => t('Revision log message'),
+      'description' => t('The explanation of the most recent changes made to the node.'),
+    ];
+    $info['tokens']['node']['content-type'] = [
+      'name' => t('Content type'),
+      'description' => t('The content type of the node.'),
+      'type' => 'content-type',
+    ];
 
-  // Content type tokens.
-  $info['types']['content-type'] = [
-    'name' => t('Content types'),
-    'description' => t('Tokens related to content types.'),
-    'needs-data' => 'node_type',
-  ];
-  $info['tokens']['content-type']['name'] = [
-    'name' => t('Name'),
-    'description' => t('The name of the content type.'),
-  ];
-  $info['tokens']['content-type']['machine-name'] = [
-    'name' => t('Machine-readable name'),
-    'description' => t('The unique machine-readable name of the content type.'),
-  ];
-  $info['tokens']['content-type']['description'] = [
-    'name' => t('Description'),
-    'description' => t('The optional description of the content type.'),
-  ];
-  $info['tokens']['content-type']['node-count'] = [
-    'name' => t('Node count'),
-    'description' => t('The number of nodes belonging to the content type.'),
-  ];
-  $info['tokens']['content-type']['edit-url'] = [
-    'name' => t('Edit URL'),
-    'description' => t("The URL of the content type's edit page."),
-    // 'type' => 'url',
-  ];
+    // Content type tokens.
+    $info['types']['content-type'] = [
+      'name' => t('Content types'),
+      'description' => t('Tokens related to content types.'),
+      'needs-data' => 'node_type',
+    ];
+    $info['tokens']['content-type']['name'] = [
+      'name' => t('Name'),
+      'description' => t('The name of the content type.'),
+    ];
+    $info['tokens']['content-type']['machine-name'] = [
+      'name' => t('Machine-readable name'),
+      'description' => t('The unique machine-readable name of the content type.'),
+    ];
+    $info['tokens']['content-type']['description'] = [
+      'name' => t('Description'),
+      'description' => t('The optional description of the content type.'),
+    ];
+    $info['tokens']['content-type']['node-count'] = [
+      'name' => t('Node count'),
+      'description' => t('The number of nodes belonging to the content type.'),
+    ];
+    $info['tokens']['content-type']['edit-url'] = [
+      'name' => t('Edit URL'),
+      'description' => t("The URL of the content type's edit page."),
+      // 'type' => 'url',
+    ];
+  }
 
   // Taxonomy term and vocabulary tokens.
   if (\Drupal::moduleHandler()->moduleExists('taxonomy')) {
@@ -1198,11 +1200,14 @@ function menu_ui_token_info() {
     'name' => t('Edit URL'),
     'description' => t("The URL of the menu link's edit page."),
   ];
-  $info['tokens']['node']['menu-link'] = [
-    'name' => t('Menu link'),
-    'description' => t("The menu link for this node."),
-    'type' => 'menu-link',
-  ];
+
+  if (\Drupal::moduleHandler()->moduleExists('node')) {
+    $info['tokens']['node']['menu-link'] = [
+      'name' => t('Menu link'),
+      'description' => t("The menu link for this node."),
+      'type' => 'menu-link',
+    ];
+  }
 
   return $info;
 }
