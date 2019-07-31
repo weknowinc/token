@@ -53,7 +53,7 @@ class TokenUserTest extends TokenTestBase {
     \Drupal::state()->set('user_picture_file_size', '');
 
     // Set up the pictures directory.
-    $picture_path = file_default_scheme() . '://' . \Drupal::state()->get('user_picture_path', 'pictures');
+    $picture_path = 'public://' . \Drupal::state()->get('user_picture_path', 'pictures');
     if (!file_prepare_directory($picture_path, FILE_CREATE_DIRECTORY)) {
       $this->fail('Could not create directory ' . $picture_path . '.');
     }
