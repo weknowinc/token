@@ -25,7 +25,7 @@ abstract class KernelTestBase extends BaseKernelTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->installSchema('system', ['router', 'url_alias']);
+    $this->installSchema('system', ['url_alias']);
     \Drupal::service('router.builder')->rebuild();
     $this->installConfig(['system']);
   }
