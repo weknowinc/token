@@ -18,4 +18,9 @@ abstract class TokenTestBase extends BrowserTestBase {
    */
   public static $modules = ['path', 'token', 'token_module_test'];
 
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaultTheme = 'stark';
+
 }
