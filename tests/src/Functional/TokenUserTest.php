@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\token\Functional;
 
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -54,7 +55,7 @@ class TokenUserTest extends TokenTestBase {
 
     // Set up the pictures directory.
     $picture_path = 'public://' . \Drupal::state()->get('user_picture_path', 'pictures');
-    if (!file_prepare_directory($picture_path, FILE_CREATE_DIRECTORY)) {
+    if (!\Drupal::service('file_system')->prepareDirectory($picture_path, FileSystemInterface::CREATE_DIRECTORY)) {
       $this->fail('Could not create directory ' . $picture_path . '.');
     }
 

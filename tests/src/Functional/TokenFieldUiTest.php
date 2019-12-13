@@ -127,8 +127,9 @@ class TokenFieldUiTest extends TokenTestBase {
    */
   public function testImageFieldTokens() {
     // Generate 2 different test images.
-    file_unmanaged_copy(\Drupal::root() . '/core/misc/druplicon.png', 'public://example1.png');
-    file_unmanaged_copy(\Drupal::root() . '/core/misc/loading.gif', 'public://example2.gif');
+    $file_system = \Drupal::service('file_system');
+    $file_system->copy(\Drupal::root() . '/core/misc/druplicon.png', 'public://example1.png');
+    $file_system->copy(\Drupal::root() . '/core/misc/loading.gif', 'public://example2.gif');
 
     // Resize the test images so that they will be scaled down during token
     // replacement.
