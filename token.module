@@ -673,6 +673,7 @@ function token_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDescription(t('Computed menu link for the node (only available during node saving).'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'menu_link_content')
+      ->setClass('\Drupal\token\MenuLinkFieldItemList')
       ->setTranslatable(TRUE)
       ->setInternal(TRUE)
       ->setDisplayOptions('view', [
