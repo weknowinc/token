@@ -702,12 +702,6 @@ function token_form_node_form_alter(&$form, FormStateInterface $form_state) {
   if (!\Drupal::moduleHandler()->moduleExists('menu_ui')) {
     return;
   }
-  /** @var \Drupal\node\NodeForm $form_object */
-  if (!\Drupal::currentUser()->hasPermission('administer menu')) {
-    // We're only interested in when the node is unsaved and the editor has
-    // permission to create new menu links.
-    return;
-  }
   $form['#entity_builders'][] = 'token_node_menu_link_submit';
 }
 
