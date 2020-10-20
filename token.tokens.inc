@@ -424,7 +424,7 @@ function token_token_info() {
 /**
  * Implements hook_tokens().
  */
-function token_tokens($type, array $tokens, array $data = [], array $options = [], BubbleableMetadata $bubbleable_metadata) {
+function token_tokens($type, array $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
   $language_manager = \Drupal::languageManager();
   $url_options = ['absolute' => TRUE];
@@ -1097,7 +1097,7 @@ function book_token_info() {
 /**
  * Implements hook_tokens() on behalf of book.module.
  */
-function book_tokens($type, $tokens, array $data = [], array $options = [], BubbleableMetadata $bubbleable_metadata) {
+function book_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
 
   // Node tokens.
@@ -1215,7 +1215,7 @@ function menu_ui_token_info() {
 /**
  * Implements hook_tokens() on behalf of menu_ui.module.
  */
-function menu_ui_tokens($type, $tokens, array $data = [], array $options = [], BubbleableMetadata $bubbleable_metadata) {
+function menu_ui_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
 
   /** @var \Drupal\Core\Menu\MenuLinkManagerInterface $menu_link_manager */
@@ -1552,8 +1552,9 @@ function _token_field_label($entity_type, $field_name) {
 /**
  * Implements hook_tokens() on behalf of field.module.
  */
-function field_tokens($type, $tokens, array $data = [], array $options = [], BubbleableMetadata $bubbleable_metadata) {
+function field_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
+
   $langcode = isset($options['langcode']) ? $options['langcode'] : NULL;
   // Entity tokens.
   if ($type == 'entity' && !empty($data['entity_type']) && !empty($data['entity']) && !empty($data['token_type'])) {
