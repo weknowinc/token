@@ -62,7 +62,7 @@ function token_token_info_alter(&$info) {
 
   // Add [token:url] tokens for any URI-able entities.
   $entities = \Drupal::entityTypeManager()->getDefinitions();
-  foreach ($entities as $entity => $entity_info) {
+  foreach ($entities as $entity_info) {
     // Do not generate tokens if the entity doesn't define a token type or is
     // not a content entity.
     if (!$entity_info->get('token_type') || (!$entity_info instanceof ContentEntityTypeInterface)) {
