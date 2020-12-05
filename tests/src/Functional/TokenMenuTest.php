@@ -244,7 +244,7 @@ class TokenMenuTest extends TokenTestBase {
     $this->assertEquals('This is a /admin/config token to the menu link parent', $node->body->value);
     // And make sure the menu link exists with the right URI.
     $link = menu_ui_get_menu_link_defaults($node);
-    $this->assertTrue(!empty($link['entity_id']));
+    $this->assertNotEmpty($link['entity_id']);
     $query = \Drupal::entityQuery('menu_link_content')
       ->condition('link.uri', 'entity:node/' . $node->id())
       ->sort('id', 'ASC')

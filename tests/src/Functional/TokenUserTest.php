@@ -69,7 +69,7 @@ class TokenUserTest extends TokenTestBase {
     // Load actual user data from database.
     $storage->resetCache();
     $this->account = $storage->load($this->account->id());
-    $this->assertTrue(!empty($this->account->user_picture->target_id), 'User picture uploaded.');
+    $this->assertNotEmpty($this->account->user_picture->target_id, 'User picture uploaded.');
 
     $picture = [
       '#theme' => 'user_picture',
