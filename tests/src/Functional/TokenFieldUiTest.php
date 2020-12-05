@@ -105,7 +105,7 @@ class TokenFieldUiTest extends TokenTestBase {
 
     // Ensure the 'Browse available tokens' link is present and correct.
     $this->assertSession()->linkExists('Browse available tokens.');
-    $this->assertLinkByHref('token/tree');
+    $this->assertSession()->linkByHrefExists('token/tree');
 
     // Ensure that the default file directory value validates correctly.
     $this->drupalPostForm(NULL, [], t('Save settings'));
