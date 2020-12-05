@@ -525,7 +525,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
           break;
 
         case 'edit-url':
-          $replacements[$original] = $node_type->toUrl('edit-form', $url_options)->toString();
+          $result = $node_type->toUrl('edit-form', $url_options)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
       }
     }
@@ -542,7 +544,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'edit-url':
-          $replacements[$original] = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $term->id()], $url_options)->toString();
+          $result = Url::fromRoute('entity.taxonomy_term.edit_form', ['taxonomy_term' => $term->id()], $url_options)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
 
         case 'parents':
@@ -592,7 +596,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
           break;
 
         case 'edit-url':
-          $replacements[$original] = Url::fromRoute('entity.taxonomy_vocabulary.edit_form', ['taxonomy_vocabulary' => $vocabulary->id()], $url_options)->toString();
+          $result = Url::fromRoute('entity.taxonomy_vocabulary.edit_form', ['taxonomy_vocabulary' => $vocabulary->id()], $url_options)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
       }
     }
@@ -696,7 +702,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
           break;
 
         case 'url':
-          $replacements[$original] = $link->getUrlObject()->setAbsolute()->toString();
+          $result = $link->getUrlObject()->setAbsolute()->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
 
         case 'parent':
@@ -771,7 +779,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
             }
           }
           if (isset($url)) {
-            $replacements[$original] = $url->toString();
+            $result = $url->toString(TRUE);
+            $bubbleable_metadata->addCacheableDependency($result);
+            $replacements[$original] = $result->getGeneratedUrl();
           }
           break;
 
@@ -859,20 +869,28 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
           break;
 
         case 'absolute':
-          $replacements[$original] = $url->setAbsolute()->toString();
+          $result = $url->setAbsolute()->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
 
         case 'relative':
-          $replacements[$original] = $url->setAbsolute(FALSE)->toString();
+          $result = $url->setAbsolute(FALSE)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
 
         case 'brief':
-          $replacements[$original] = preg_replace(['!^https?://!', '!/$!'], '', $url->setAbsolute()->toString());
+          $result = $url->setAbsolute()->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = preg_replace(['!^https?://!', '!/$!'], '', $result->getGeneratedUrl());
           break;
 
         case 'unaliased':
           $unaliased = clone $url;
-          $replacements[$original] = $unaliased->setAbsolute()->setOption('alias', TRUE)->toString();
+          $result = $unaliased->setAbsolute()->setOption('alias', TRUE)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
 
         case 'args':
@@ -904,7 +922,9 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
       switch ($name) {
         case 'url':
           if (_token_module($type, 'url') === 'token' && !$entity->isNew() && $entity->hasLinkTemplate('canonical')) {
-            $replacements[$original] = $entity->toUrl('canonical')->toString();
+            $result = $entity->toUrl('canonical')->toString(TRUE);
+            $bubbleable_metadata->addCacheableDependency($result);
+            $replacements[$original] = $result->getGeneratedUrl();
           }
           break;
 
@@ -1290,7 +1310,9 @@ function menu_ui_tokens($type, $tokens, array $data, array $options, BubbleableM
           break;
 
         case 'edit-url':
-          $replacements[$original] = $link->getEditRoute()->setOptions($url_options)->toString();
+          $result =  $link->getEditRoute()->setOptions($url_options)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
       }
     }
@@ -1325,7 +1347,9 @@ function menu_ui_tokens($type, $tokens, array $data, array $options, BubbleableM
           break;
 
         case 'edit-url':
-          $replacements[$original] = Url::fromRoute('entity.menu.edit_form', ['menu' => $menu->id()], $url_options)->toString();
+          $result = Url::fromRoute('entity.menu.edit_form', ['menu' => $menu->id()], $url_options)->toString(TRUE);
+          $bubbleable_metadata->addCacheableDependency($result);
+          $replacements[$original] = $result->getGeneratedUrl();
           break;
       }
     }
