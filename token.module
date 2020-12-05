@@ -556,8 +556,10 @@ function token_menu_link_translated_title(MenuLinkInterface $menu_link, $langcod
   if (isset($metadata['entity_id']) && $menu_link->getProvider() == 'menu_link_content') {
     /** @var \Drupal\menu_link_content\MenuLinkContentInterface $entity */
     $entity = \Drupal::entityTypeManager()->getStorage('menu_link_content')->load($metadata['entity_id']);
-    $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
-    return $entity->getTitle();
+    if (!empty($entity)) {
+      $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
+      return $entity->getTitle();
+    }
   }
   return $menu_link->getTitle();
 }
