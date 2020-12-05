@@ -738,6 +738,10 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
       }
       else {
         if ($node->isNew()) {
+          // Don't create a menu link if the node is being previewed.
+          if ($form_state->getTriggeringElement()['#id'] == 'edit-preview') {
+            return;
+          }
           // Create a new menu_link_content entity.
           $entity = MenuLinkContent::create([
             // Lets just reference the UUID for now, the link is not important for

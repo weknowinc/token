@@ -456,4 +456,30 @@ class TokenMenuTest extends TokenTestBase {
     $this->assertNoTokens('menu-link', ['menu-link' => $child_1_1], ['parents']);
   }
 
+  /**
+   * Tests that no menu link is generated when the node gets previewed.
+   */
+  public function testPreviewMenuLink() {
+    $this->drupalCreateContentType(['type' => 'article']);
+    $permissions = [
+      'access administration pages',
+      'administer content types',
+      'create article content',
+      'edit any article content',
+      'administer menu',
+    ];
+    $this->drupalLogin($this->drupalCreateUser($permissions));
+    // Create an english node with an english menu.
+    $this->drupalGet('/node/add/article');
+    $edit = [
+      'title[0][value]' => 'English test node with menu',
+      'menu[enabled]' => TRUE,
+      'menu[title]' => 'English menu title',
+    ];
+    $this->drupalGet('node/add/article');
+    $this->submitForm($edit, t('Preview'));
+    $menu_links = \Drupal::entityTypeManager()->getStorage('menu_link_content')->loadByProperties(['menu_name' => 'main']);
+    $this->assertEmpty($menu_links);
+  }
+
 }
