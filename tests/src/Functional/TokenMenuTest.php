@@ -174,7 +174,7 @@ class TokenMenuTest extends TokenTestBase {
     $this->drupalPostForm('admin/structure/menu/manage/main-menu', ['links[menu_plugin_id:' . $link['id'] . '][enabled]' => FALSE], t('Save'));
     $this->assertText('Menu Main menu has been updated.');
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], t('Save'));
-    $this->assertNoLink('Test preview');
+    $this->assertSession()->linkNotExists('Test preview');
 
     // Now test a parent link and token.
     $this->drupalGet('node/add/page');
@@ -354,9 +354,9 @@ class TokenMenuTest extends TokenTestBase {
 
     // Verify that the menu links are correct.
     $this->drupalGet('node/1');
-    $this->assertLink('English menu title');
+    $this->assertSession()->linkExists('English menu title');
     $this->drupalGet('de/node/1');
-    $this->assertLink('German menu title');
+    $this->assertSession()->linkExists('German menu title');
 
     // Verify that tokens are correct.
     $node = Node::load(1);
