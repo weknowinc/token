@@ -1003,7 +1003,7 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
     // [array:value:*] dynamic tokens.
     if ($value_tokens = \Drupal::token()->findWithPrefix($tokens, 'value')) {
       foreach ($value_tokens as $key => $original) {
-        if ($key[0] !== '#' && isset($array[$key])) {
+        if ((is_int($key) || $key[0] !== '#') && isset($array[$key])) {
           $replacements[$original] = token_render_array_value($array[$key], $options);
         }
       }
