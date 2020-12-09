@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Entity\TypedData\EntityDataDefinitionInterface;
 use Drupal\Core\Render\BubbleableMetadata;
@@ -1591,9 +1592,6 @@ function field_tokens($type, $tokens, array $data, array $options, BubbleableMet
     // Obtain the entity with the correct language.
     $entity = \Drupal::service('entity.repository')->getTranslationFromContext($entity, $langcode);
 
-    $view_mode_name = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.token';
-    $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load($view_mode_name);
-    $token_view_display = (!empty($view_display) && $view_display->status());
     foreach ($tokens as $name => $original) {
       // For the [entity:field_name] token.
       if (strpos($name, ':') === FALSE) {
@@ -1603,7 +1601,7 @@ function field_tokens($type, $tokens, array $data, array $options, BubbleableMet
       // For [entity:field_name:0], [entity:field_name:0:value] and
       // [entity:field_name:value] tokens.
       else {
-        list($field_name, $delta) = explode(':', $name, 2);
+        [$field_name, $delta] = explode(':', $name, 2);
         if (!is_numeric($delta)) {
           unset($delta);
         }
@@ -1622,7 +1620,8 @@ function field_tokens($type, $tokens, array $data, array $options, BubbleableMet
       }
       // Handle [entity:field_name] and [entity:field_name:0] tokens.
       if ($field_name === $name || isset($delta)) {
-        if (!$token_view_display) {
+        $view_display = token_get_token_view_display($entity);
+        if (!$view_display) {
           // We don't have the token view display and should fall back on
           // default formatters. If the field has specified a specific formatter
           // to be used by default with tokens, use that, otherwise use the
@@ -1659,12 +1658,28 @@ function field_tokens($type, $tokens, array $data, array $options, BubbleableMet
       // Handle [entity:field_name:value] and [entity:field_name:0:value]
       // tokens.
       elseif ($field_tokens = \Drupal::token()->findWithPrefix($tokens, $field_name)) {
-        $property_token_data = [
-          'field_property' => TRUE,
-          $data['entity_type'] . '-' . $field_name => $entity->$field_name,
-          'field_name' => $data['entity_type'] . '-' . $field_name,
-        ];
-        $replacements += \Drupal::token()->generate($field_name, $field_tokens, $property_token_data, $options, $bubbleable_metadata);
+        // With multiple nested tokens for the same field name, this might
+        // match the same field multiple times. Filter out those that have
+        // already been replaced.
+        $field_tokens = array_filter($field_tokens, function ($token) use ($replacements) {
+          return !isset($replacements[$token]);
+        });
+
+        if ($field_tokens) {
+          $property_token_data = [
+            'field_property' => TRUE,
+            $data['entity_type'] . '-' . $field_name => $entity->$field_name,
+            'field_name' => $data['entity_type'] . '-' . $field_name,
+          ];
+          // The optimization above only works on the root level, if there is
+          // more than one nested field it would still replace all in every
+          // call. Replace them one by one instead, which is slightly slower
+          // but ensures that the number of replacements do not grow
+          // exponentialy.
+          foreach ($field_tokens as $field_token_key => $field_token_value) {
+            $replacements += \Drupal::token()->generate($field_name, [$field_token_key => $field_token_value], $property_token_data, $options, $bubbleable_metadata);
+          }
+        }
       }
     }
 
@@ -1793,4 +1808,19 @@ function field_tokens($type, $tokens, array $data, array $options, BubbleableMet
     }
   }
   return $replacements;
+}
+
+/**
+ * Returns the token view display for the given entity if enabled.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity.
+ *
+ * @return \Drupal\Core\Entity\Display\EntityViewDisplayInterface|null
+ *   The view display or null.
+ */
+function token_get_token_view_display(EntityInterface $entity) {
+  $view_mode_name = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.token';
+  $view_display = \Drupal::entityTypeManager()->getStorage('entity_view_display')->load($view_mode_name);
+  return ($view_display && $view_display->status()) ? $view_display : NULL;
 }
