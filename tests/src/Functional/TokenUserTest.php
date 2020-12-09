@@ -62,7 +62,7 @@ class TokenUserTest extends TokenTestBase {
     // Add a user picture to the account.
     $image = current($this->getTestFiles('image'));
     $edit = ['files[user_picture_0]' => \Drupal::service('file_system')->realpath($image->uri)];
-    $this->drupalPostForm('user/' . $this->account->id() . '/edit', $edit, t('Save'));
+    $this->drupalPostForm('user/' . $this->account->id() . '/edit', $edit, 'Save');
 
     $storage = \Drupal::entityTypeManager()->getStorage('user');
 

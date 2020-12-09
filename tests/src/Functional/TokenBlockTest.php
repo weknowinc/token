@@ -53,7 +53,7 @@ class TokenBlockTest extends TokenTestBase {
     // positioned.
     $this->assertSession()->linkExists('Browse available tokens.');
     $this->assertText('This field supports tokens. Browse available tokens.');
-    $this->drupalPostForm(NULL, [], t('Save block'));
+    $this->drupalPostForm(NULL, [], 'Save block');
     // Ensure token validation is working on the block.
     $this->assertText('Title is using the following invalid tokens: [user:name].');
 

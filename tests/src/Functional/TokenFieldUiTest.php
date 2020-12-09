@@ -108,7 +108,7 @@ class TokenFieldUiTest extends TokenTestBase {
     $this->assertSession()->linkByHrefExists('token/tree');
 
     // Ensure that the default file directory value validates correctly.
-    $this->drupalPostForm(NULL, [], t('Save settings'));
+    $this->drupalPostForm(NULL, [], 'Save settings');
     $this->assertText(t('Saved Image configuration.'));
   }
 
