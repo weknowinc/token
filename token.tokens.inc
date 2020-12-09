@@ -1521,12 +1521,8 @@ function field_token_info_alter(&$info) {
         }
       }
       // Provide format token for datetime fields.
-      if ($field->getType() == 'datetime') {
-        $info['tokens'][$field_token_name]['date'] = $info['tokens'][$field_token_name]['value'];
-        $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
-        $info['tokens'][$field_token_name]['date']['type'] = 'date';
-      }
-      if ($field->getType() == 'timestamp' || $field->getType() == 'created' || $field->getType() == 'changed') {
+      $date_fields = ['datetime', 'timestamp', 'created', 'changed'];
+      if (in_array($field->getType(), $date_fields, TRUE)) {
         $info['tokens'][$field_token_name]['date'] = $info['tokens'][$field_token_name]['value'];
         $info['tokens'][$field_token_name]['date']['name'] .= ' ' . t('format');
         $info['tokens'][$field_token_name]['date']['type'] = 'date';
