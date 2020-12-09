@@ -469,27 +469,6 @@ function token_render_array_value($value, array $options = []) {
 }
 
 /**
- * Copy of drupal_render_cache_get() that does not care about request method.
- */
-function token_render_cache_get($elements) {
-  if (!$cid = drupal_render_cid_create($elements)) {
-    return FALSE;
-  }
-  $bin = isset($elements['#cache']['bin']) ? $elements['#cache']['bin'] : 'render';
-
-  if (!empty($cid) && $cache = \Drupal::cache($bin)->get($cid)) {
-    // Add additional libraries, JavaScript, CSS and other data attached
-    // to this element.
-    if (isset($cache->data['#attached'])) {
-      drupal_process_attached($cache->data);
-    }
-    // Return the rendered output.
-    return $cache->data['#markup'];
-  }
-  return FALSE;
-}
-
-/**
  * Coyp of drupal_render_cache_set() that does not care about request method.
  */
 function token_render_cache_set(&$markup, $elements) {

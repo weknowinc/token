@@ -72,10 +72,6 @@ class TreeBuilder implements TreeBuilderInterface {
     ];
 
     // @todo Find a way to use the render cache for this.
-    /*if ($cached_output = token_render_cache_get($element)) {
-      return $cached_output;
-    }*/
-
     $tree_options = [
       'flat' => TRUE,
       'restricted' => $options['show_restricted'],
