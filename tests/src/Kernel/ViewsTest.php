@@ -27,7 +27,7 @@ class ViewsTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
     $this->installEntitySchema('user');
     ViewTestData::createTestViews(get_class($this), ['token_module_test']);

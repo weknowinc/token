@@ -23,7 +23,7 @@ class HelpPageTest extends TokenTestBase {
    */
   protected static $modules = ['help'];
 
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->account = $this->drupalCreateUser(['access administration pages']);

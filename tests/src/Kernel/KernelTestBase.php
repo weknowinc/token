@@ -27,7 +27,7 @@ abstract class KernelTestBase extends BaseKernelTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->installEntitySchema('path_alias');

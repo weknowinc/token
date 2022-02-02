@@ -19,7 +19,7 @@ class TokenURLTest extends TokenTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
     $this->saveAlias('/node/1', '/first-node');
   }

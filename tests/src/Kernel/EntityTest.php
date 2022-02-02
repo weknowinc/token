@@ -22,7 +22,7 @@ class EntityTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     // Create the default tags vocabulary.

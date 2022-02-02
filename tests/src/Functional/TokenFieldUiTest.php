@@ -29,7 +29,7 @@ class TokenFieldUiTest extends TokenTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp($modules = []) {
+  public function setUp(): void {
     parent::setUp();
     $this->adminUser = $this->drupalCreateUser(['bypass node access', 'administer content types', 'administer node fields']);
     $this->drupalLogin($this->adminUser);

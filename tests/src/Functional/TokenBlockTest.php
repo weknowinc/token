@@ -20,7 +20,7 @@ class TokenBlockTest extends TokenTestBase {
   /**
    * {@inheritdoc}
    */
-  public function setUp($modules = []) {
+  public function setUp(): void {
     parent::setUp();
     $this->admin_user = $this->drupalCreateUser(['access content', 'administer blocks']);
     $this->drupalLogin($this->admin_user);

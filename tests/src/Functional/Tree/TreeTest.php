@@ -24,7 +24,7 @@ class TreeTest extends TokenTestBase {
    */
   protected static $modules = ['node'];
 
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
 
     $this->account = $this->drupalCreateUser(['administer account settings']);
