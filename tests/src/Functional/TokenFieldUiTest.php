@@ -22,11 +22,9 @@ class TokenFieldUiTest extends TokenTestBase {
   protected $adminUser;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['field_ui', 'node', 'image'];
+  protected static $modules = ['field_ui', 'node', 'image'];
 
   /**
    * {@inheritdoc}

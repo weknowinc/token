@@ -13,11 +13,9 @@ use Drupal\block_content\Entity\BlockContentType;
 class TokenBlockTest extends TokenTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['block', 'node', 'views', 'block_content'];
+  protected static $modules = ['block', 'node', 'views', 'block_content'];
 
   /**
    * {@inheritdoc}

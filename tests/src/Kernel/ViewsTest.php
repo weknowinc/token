@@ -13,11 +13,9 @@ use Drupal\views\Views;
 class ViewsTest extends KernelTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['views', 'block'];
+  protected static $modules = ['views', 'block'];
 
   /**
    * Views used by this test.

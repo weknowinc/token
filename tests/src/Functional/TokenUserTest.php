@@ -25,11 +25,9 @@ class TokenUserTest extends TokenTestBase {
   protected $account = NULL;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['token_user_picture'];
+  protected static $modules = ['token_user_picture'];
 
   /**
    * {@inheritdoc}

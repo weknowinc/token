@@ -20,11 +20,9 @@ class TreeTest extends TokenTestBase {
   protected $account;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['node'];
+  protected static $modules = ['node'];
 
   public function setUp() {
     parent::setUp();

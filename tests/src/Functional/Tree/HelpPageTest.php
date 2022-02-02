@@ -19,11 +19,9 @@ class HelpPageTest extends TokenTestBase {
   protected $account;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['help'];
+  protected static $modules = ['help'];
 
   public function setUp() {
     parent::setUp();

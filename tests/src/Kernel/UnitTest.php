@@ -15,11 +15,9 @@ class UnitTest extends KernelTestBase {
   protected $tokenService;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['file', 'node'];
+  protected static $modules = ['file', 'node'];
 
   /**
    * {@inheritdoc}

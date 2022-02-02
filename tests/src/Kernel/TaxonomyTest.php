@@ -17,11 +17,9 @@ class TaxonomyTest extends KernelTestBase {
   protected $vocab;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['taxonomy', 'text', 'language'];
+  protected static $modules = ['taxonomy', 'text', 'language'];
 
   /**
    * {@inheritdoc}

@@ -18,11 +18,9 @@ use Drupal\system\Entity\Menu;
 class TokenMenuTest extends TokenTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = [
+  protected static $modules = [
     'menu_ui',
     'node',
     'block',

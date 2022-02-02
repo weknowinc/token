@@ -14,11 +14,9 @@ use Drupal\Core\Url;
 class NodeTest extends KernelTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['node', 'field', 'text'];
+  protected static $modules = ['node', 'field', 'text'];
 
   /**
    * {@inheritdoc}

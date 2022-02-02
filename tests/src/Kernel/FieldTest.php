@@ -42,11 +42,20 @@ class FieldTest extends KernelTestBase {
   protected $vocabulary;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['node', 'text', 'field', 'filter', 'contact', 'options', 'taxonomy', 'language', 'datetime', 'datetime_range'];
+  protected static $modules = [
+    'node',
+    'text',
+    'field',
+    'filter',
+    'contact',
+    'options',
+    'taxonomy',
+    'language',
+    'datetime',
+    'datetime_range',
+  ];
 
   /**
    * {@inheritdoc}

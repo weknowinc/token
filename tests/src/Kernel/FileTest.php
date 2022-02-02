@@ -11,11 +11,9 @@ use Drupal\file\Entity\File;
 class FileTest extends KernelTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = ['file'];
+  protected static $modules = ['file'];
 
   /**
    * {@inheritdoc}
