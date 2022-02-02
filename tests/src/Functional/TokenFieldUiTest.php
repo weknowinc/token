@@ -106,7 +106,7 @@ class TokenFieldUiTest extends TokenTestBase {
     $this->assertSession()->linkByHrefExists('token/tree');
 
     // Ensure that the default file directory value validates correctly.
-    $this->drupalPostForm(NULL, [], 'Save settings');
+    $this->submitForm([], 'Save settings');
     $this->assertSession()->pageTextContains('Saved Image configuration.');
   }
 
@@ -114,7 +114,8 @@ class TokenFieldUiTest extends TokenTestBase {
     $edit = [
       'description' => 'The site is called [site:name].',
     ];
-    $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_body', $edit, 'Save settings');
+    $this->drupalGet('admin/structure/types/manage/article/fields/node.article.field_body');
+    $this->submitForm($edit, 'Save settings');
 
     $this->drupalGet('node/add/article');
     $this->assertSession()->pageTextContains('The site is called Drupal.');
