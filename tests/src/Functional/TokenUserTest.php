@@ -122,7 +122,7 @@ class TokenUserTest extends TokenTestBase {
    */
   public function testUserAccountSettings() {
     $this->drupalGet('admin/config/people/accounts');
-    $this->assertText('The list of available tokens that can be used in e-mails is provided below.');
+    $this->assertSession()->pageTextContains('The list of available tokens that can be used in e-mails is provided below.');
     $this->assertSession()->linkExists('Browse available tokens.');
     $this->assertSession()->linkByHrefExists('token/tree');
   }

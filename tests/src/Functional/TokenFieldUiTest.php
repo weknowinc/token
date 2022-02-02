@@ -107,7 +107,7 @@ class TokenFieldUiTest extends TokenTestBase {
 
     // Ensure that the default file directory value validates correctly.
     $this->drupalPostForm(NULL, [], 'Save settings');
-    $this->assertText(t('Saved Image configuration.'));
+    $this->assertSession()->pageTextContains('Saved Image configuration.');
   }
 
   public function testFieldDescriptionTokens() {
@@ -117,7 +117,7 @@ class TokenFieldUiTest extends TokenTestBase {
     $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_body', $edit, 'Save settings');
 
     $this->drupalGet('node/add/article');
-    $this->assertText('The site is called Drupal.');
+    $this->assertSession()->pageTextContains('The site is called Drupal.');
   }
 
   /**

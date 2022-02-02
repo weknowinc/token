@@ -170,7 +170,7 @@ class TokenMenuTest extends TokenTestBase {
     // no longer displayed.
     $link = menu_ui_get_menu_link_defaults($node);
     $this->drupalPostForm('admin/structure/menu/manage/main-menu', ['links[menu_plugin_id:' . $link['id'] . '][enabled]' => FALSE], 'Save');
-    $this->assertText('Menu Main menu has been updated.');
+    $this->assertSession()->pageTextContains('Menu Main menu has been updated.');
     $this->drupalPostForm('node/' . $node->id() . '/edit', [], 'Save');
     $this->assertSession()->linkNotExists('Test preview');
 
@@ -260,7 +260,7 @@ class TokenMenuTest extends TokenTestBase {
       'menu[title]' => 'menu link provided by node',
     ];
     $this->drupalPostForm('node/add/page', $edit, 'Save');
-    $this->assertText('page ' . $node_title . ' has been created');
+    $this->assertSession()->pageTextContains('page ' . $node_title . ' has been created');
     $node = $this->drupalGetNodeByTitle($node_title);
 
     $menu_ui_link1 = MenuLinkContent::create([
@@ -328,7 +328,7 @@ class TokenMenuTest extends TokenTestBase {
       'settings[menu_link_content][menu_link_content][translatable]' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, 'Save configuration');
-    $this->assertText('Settings successfully updated.');
+    $this->assertSession()->pageTextContains('Settings successfully updated.');
 
     // Create an english node with an english menu.
     $this->drupalGet('/node/add/article');
@@ -338,7 +338,7 @@ class TokenMenuTest extends TokenTestBase {
       'menu[title]' => 'English menu title',
     ];
     $this->drupalPostForm('/node/add/article', $edit, 'Save');
-    $this->assertText('English test node with menu has been created.');
+    $this->assertSession()->pageTextContains('English test node with menu has been created.');
 
     // Add a german translation.
     $this->drupalGet('node/1/translations');
@@ -349,7 +349,7 @@ class TokenMenuTest extends TokenTestBase {
       'menu[title]' => 'German menu title',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save (this translation)');
-    $this->assertText('German test node with menu has been updated.');
+    $this->assertSession()->pageTextContains('German test node with menu has been updated.');
 
     // Verify that the menu links are correct.
     $this->drupalGet('node/1');

@@ -50,10 +50,10 @@ class TokenBlockTest extends TokenTestBase {
     // Ensure that the link to available tokens is present and correctly
     // positioned.
     $this->assertSession()->linkExists('Browse available tokens.');
-    $this->assertText('This field supports tokens. Browse available tokens.');
+    $this->assertSession()->pageTextContains('This field supports tokens. Browse available tokens.');
     $this->drupalPostForm(NULL, [], 'Save block');
     // Ensure token validation is working on the block.
-    $this->assertText('Title is using the following invalid tokens: [user:name].');
+    $this->assertSession()->pageTextContains('Title is using the following invalid tokens: [user:name].');
 
     // Create the block for real now with a valid title.
     $settings = $block->get('settings');
