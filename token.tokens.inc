@@ -568,6 +568,7 @@ function token_tokens($type, array $tokens, array $data, array $options, Bubblea
           $count = \Drupal::entityQueryAggregate('node')
             ->aggregate('nid', 'COUNT')
             ->condition('type', $node_type->id())
+            ->accessCheck(TRUE)
             ->execute();
           $replacements[$original] = (int) $count;
           break;

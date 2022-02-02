@@ -245,6 +245,7 @@ class TokenMenuTest extends TokenTestBase {
     $this->assertNotEmpty($link['entity_id']);
     $query = \Drupal::entityQuery('menu_link_content')
       ->condition('link.uri', 'entity:node/' . $node->id())
+      ->accessCheck(TRUE)
       ->sort('id', 'ASC')
       ->range(0, 1);
     $result = $query->execute();
