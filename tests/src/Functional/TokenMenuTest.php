@@ -307,6 +307,7 @@ class TokenMenuTest extends TokenTestBase {
     // Create the article content type.
     $node_type = NodeType::create([
       'type' => 'article',
+      'name' => 'Article',
     ]);
     $node_type->save();
 

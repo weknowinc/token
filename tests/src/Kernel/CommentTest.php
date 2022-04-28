@@ -25,7 +25,6 @@ class CommentTest extends KernelTestBase {
     'comment',
     'field',
     'text',
-    'entity_reference',
   ];
 
   /**
