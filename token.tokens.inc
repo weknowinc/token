@@ -1420,9 +1420,12 @@ function menu_ui_tokens($type, $tokens, array $data, array $options, BubbleableM
           break;
 
         case 'edit-url':
-          $result =  $link->getEditRoute()->setOptions($url_options)->toString(TRUE);
-          $bubbleable_metadata->addCacheableDependency($result);
-          $replacements[$original] = $result->getGeneratedUrl();
+          $route = $link->getEditRoute();
+          if ($route) {
+            $result = $link->getEditRoute()->setOptions($url_options)->toString(TRUE);
+            $bubbleable_metadata->addCacheableDependency($result);
+            $replacements[$original] = $result->getGeneratedUrl();
+          }
           break;
       }
     }
