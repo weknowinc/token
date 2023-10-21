@@ -670,6 +670,13 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
   // Entity builders run twice, once during validation and again during
   // submission, so we only run this code after validation has been performed.
   if (!$form_state->isValueEmpty('menu') && $form_state->getTemporaryValue('entity_validated')) {
+
+    // Don't create a menu link if the node is not being saved.
+    $triggering_element = $form_state->getTriggeringElement();
+    if (!$triggering_element || !in_array('::save', $triggering_element['#submit'])) {
+      return;
+    }
+
     $values = $form_state->getValue('menu');
     if (!empty($values['enabled']) && trim($values['title'])) {
       if (!empty($values['menu_parent'])) {
@@ -694,10 +701,6 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
       }
       else {
         if ($node->isNew()) {
-          // Don't create a menu link if the node is being previewed.
-          if ($form_state->getTriggeringElement()['#id'] == 'edit-preview') {
-            return;
-          }
           // Create a new menu_link_content entity.
           $entity = MenuLinkContent::create([
             // Lets just reference the UUID for now, the link is not important for
