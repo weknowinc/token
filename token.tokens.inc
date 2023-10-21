@@ -1768,6 +1768,9 @@ function _field_tokens($type, $tokens, array $data, array $options, BubbleableMe
           /** @var \Drupal\Core\Field\FieldTypePluginManager $field_type_manager */
           $field_type_manager = \Drupal::service('plugin.manager.field.field_type');
           $field_type_definition = $field_type_manager->getDefinition($entity->getFieldDefinition($field_name)->getType());
+          if (empty($field_type_definition['default_token_formatter']) && empty($field_type_definition['default_formatter'])) {
+            continue;
+          }
           $display_options = [
             'type' => !empty($field_type_definition['default_token_formatter']) ? $field_type_definition['default_token_formatter'] : $field_type_definition['default_formatter'],
             'label' => 'hidden',
