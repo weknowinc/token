@@ -672,7 +672,7 @@ function token_node_menu_link_submit($entity_type, NodeInterface $node, &$form, 
 
     // Don't create a menu link if the node is not being saved.
     $triggering_element = $form_state->getTriggeringElement();
-    if (!$triggering_element || !in_array('::save', $triggering_element['#submit'])) {
+    if (!$triggering_element || !isset($triggering_element['#submit']) || !in_array('::save', $triggering_element['#submit'])) {
       return;
     }
 
